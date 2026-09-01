@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sistema de Gestão — Igreja Sara Encontro com Deus (Mockup)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1D2733;
+    --ink-soft:#647082;
+    --paper:#F4F5F7;
+    --panel:#FFFFFF;
+    --primary:#1B3A6B;
+    --primary-dark:#122A50;
+    --primary-tint:#E7EDF6;
+    --gold:#C21F1F;
+    --gold-tint:#FBEAEA;
+    --rose:#A31818;
+    --rose-tint:#F6D9D9;
+    --teal:#2E8C79;
+    --teal-tint:#DFF1EB;
+    --border:#E3E6EC;
+    --radius:14px;
+    --shadow:0 1px 2px rgba(35,26,52,0.04), 0 8px 24px -12px rgba(35,26,52,0.14);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:'Manrope',sans-serif;
+    background:var(--paper);
+    color:var(--ink);
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,.display{
+    font-family:'Fraunces',serif;
+    font-weight:600;
+    letter-spacing:-0.01em;
+  }
+  .mono{font-family:'IBM Plex Mono',monospace; letter-spacing:0.02em;}
+  ::selection{background:var(--gold-tint);}
+
+  /* ---------- Ribbon signature motif ---------- */
+  .ribbon{
+    position:relative;
+    overflow:hidden;
+  }
+  .ribbon svg{display:block;width:100%;height:auto;}
+
+  /* ---------- LOGIN SCREEN ---------- */
+  #screen-login{
+    min-height:100vh;
+    display:grid;
+    grid-template-columns:1.05fr 1fr;
+  }
+  @media (max-width:860px){ #screen-login{grid-template-columns:1fr;} .login-brand{min-height:280px;} }
+  .login-brand{
+    background:linear-gradient(160deg, var(--primary-dark) 0%, var(--primary) 100%);
+    color:#fff;
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+    padding:56px 56px 40px;
+    position:relative;
+  }
+  .brand-mark{
+    display:flex; align-items:center; gap:12px;
+  }
+  .brand-mark .glyph{
+    width:40px;height:40px;border-radius:10px;
+    background:rgba(255,255,255,0.12);
+    display:flex;align-items:center;justify-content:center;
+  }
+  .brand-mark .wordmark{font-family:'Fraunces',serif; font-size:20px; font-weight:600;}
+  .brand-mark .wordmark span{color:var(--gold); font-style:normal; font-weight:400; font-size:0.65em; display:block; letter-spacing:0.06em;}
+  .brand-mark .flame{flex-shrink:0;}
+  .login-brand .lede{max-width:420px;}
+  .login-brand .lede .eyebrow{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px; letter-spacing:0.12em; text-transform:uppercase;
+    color:var(--gold); margin-bottom:18px; display:block;
+  }
+  .login-brand h1{font-size:40px; line-height:1.12; margin:0 0 14px; color:#fff;}
+  .login-brand p{color:rgba(255,255,255,0.72); font-size:15px; line-height:1.6; margin:0;}
+  .login-foot{display:flex; gap:28px; font-size:13px; color:rgba(255,255,255,0.55);}
+  .login-panel{
+    display:flex; align-items:center; justify-content:center; padding:40px;
+  }
+  .login-card{width:100%; max-width:360px;}
+  .login-card .eyebrow-2{font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--ink-soft);}
+  .login-card h2{font-size:26px; margin:6px 0 28px;}
+  .field{margin-bottom:18px;}
+  .field label{display:block; font-size:13px; font-weight:600; margin-bottom:7px; color:var(--ink);}
+  .field input{
+    width:100%; padding:12px 14px; border-radius:10px; border:1.5px solid var(--border);
+    font-family:'Manrope',sans-serif; font-size:14px; background:#fff; color:var(--ink);
+    outline:none; transition:border-color .15s;
+  }
+  .field input:focus{border-color:var(--primary);}
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:8px;
+    padding:13px 22px; border-radius:10px; border:none; cursor:pointer;
+    font-family:'Manrope',sans-serif; font-weight:700; font-size:14px;
+    transition:transform .12s, box-shadow .12s;
+  }
+  .btn:active{transform:translateY(1px);}
+  .btn-primary{background:var(--primary); color:#fff; width:100%;}
+  .btn-primary:hover{background:var(--primary-dark);}
+  .btn-ghost{background:transparent; color:var(--primary); border:1.5px solid var(--border);}
+  .login-help{margin-top:16px; text-align:center; font-size:13px; color:var(--ink-soft);}
+  .login-help a{color:var(--primary); text-decoration:none; font-weight:600;}
+
+  /* ---------- APP SHELL ---------- */
+  #app{display:none; min-height:100vh; grid-template-columns:250px 1fr;}
+  #app.active{display:grid;}
+  .sidebar{
+    background:var(--primary-dark);
+    color:#fff;
+    padding:24px 16px;
+    display:flex; flex-direction:column;
+    position:sticky; top:0; height:100vh;
+  }
+  .sidebar .brand-mark{padding:6px 8px 22px; border-bottom:1px solid rgba(255,255,255,0.12); margin-bottom:16px;}
+  .sidebar .brand-mark .wordmark{font-size:17px;}
+  .nav-group-label{
+    font-family:'IBM Plex Mono',monospace; font-size:10.5px; letter-spacing:0.12em;
+    text-transform:uppercase; color:rgba(255,255,255,0.4); padding:14px 12px 8px;
+  }
+  .nav-item{
+    display:flex; align-items:center; gap:12px;
+    padding:12px 12px; border-radius:9px; color:rgba(255,255,255,0.85);
+    text-decoration:none; font-size:14.5px; font-weight:600; cursor:pointer;
+    margin-bottom:3px; border-left:3px solid transparent;
+  }
+  .nav-item .ic{font-size:17px; flex-shrink:0; width:20px; text-align:center;}
+  .nav-item:hover{background:rgba(255,255,255,0.06); color:#fff;}
+  .nav-item.active{
+    background:rgba(255,255,255,0.1); color:#fff;
+    border-left:3px solid var(--gold);
+  }
+  .sidebar-foot{
+    margin-top:auto; padding-top:16px; border-top:1px solid rgba(255,255,255,0.12);
+    display:flex; align-items:center; gap:10px; font-size:13px; color:rgba(255,255,255,0.6);
+  }
+  .avatar{width:32px;height:32px;border-radius:50%; background:var(--gold); color:var(--primary-dark);
+    display:flex;align-items:center;justify-content:center; font-weight:800; font-family:'Fraunces',serif; flex-shrink:0;}
+
+  .main{padding:0; overflow-x:hidden;}
+  .topbar{
+    background:var(--panel); border-bottom:1px solid var(--border);
+    padding:20px 36px; display:flex; align-items:center; justify-content:space-between;
+    position:sticky; top:0; z-index:5;
+  }
+  .topbar h1{font-size:22px; margin:0;}
+  .topbar .sub{font-size:13px; color:var(--ink-soft); margin-top:2px;}
+  .topbar-actions{display:flex; gap:10px; align-items:center;}
+  .btn-sm{padding:9px 16px; font-size:13px;}
+  .content{padding:28px 36px 64px;}
+  .view{display:none;}
+  .view.active{display:block;}
+
+  /* Reusable pieces */
+  .grid{display:grid; gap:18px;}
+  .cols-4{grid-template-columns:repeat(4,1fr);}
+  .cols-3{grid-template-columns:repeat(3,1fr);}
+  .cols-2{grid-template-columns:repeat(2,1fr);}
+  @media (max-width:1100px){.cols-4{grid-template-columns:repeat(2,1fr);} .cols-3{grid-template-columns:repeat(2,1fr);}}
+
+  .card{background:var(--panel); border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow);}
+  .kpi{padding:20px 22px;}
+  .kpi .icon-bar{width:34px; height:34px; border-radius:9px; display:flex;align-items:center;justify-content:center; margin-bottom:14px;}
+  .kpi .value{font-family:'Fraunces',serif; font-size:30px; font-weight:600; line-height:1;}
+  .kpi .label{font-size:13px; color:var(--ink-soft); margin-top:6px;}
+  .kpi .delta{font-size:12px; font-weight:700; margin-top:10px; display:inline-block;}
+  .delta.up{color:var(--teal);}
+  .delta.flat{color:var(--ink-soft);}
+
+  .section-title{display:flex; align-items:baseline; justify-content:space-between; margin:34px 0 16px;}
+  .section-title h2{font-size:17px; margin:0;}
+  .section-title .eyebrow{font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--ink-soft); text-transform:uppercase; letter-spacing:0.08em;}
+
+  table{width:100%; border-collapse:collapse; font-size:13.5px;}
+  th{text-align:left; font-family:'IBM Plex Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:0.06em; color:var(--ink-soft); font-weight:500; padding:0 16px 12px; border-bottom:1px solid var(--border);}
+  td{padding:14px 16px; border-bottom:1px solid var(--border); vertical-align:middle;}
+  tr:last-child td{border-bottom:none;}
+  .table-wrap{background:var(--panel); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; box-shadow:var(--shadow);}
+  .table-toolbar{display:flex; justify-content:space-between; align-items:center; padding:18px 18px 4px;}
+  .search{
+    display:flex; align-items:center; gap:8px; background:var(--paper); border:1px solid var(--border);
+    border-radius:9px; padding:9px 13px; font-size:13px; color:var(--ink-soft); min-width:240px;
+  }
+
+  .badge{display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:700; padding:5px 11px; border-radius:99px;}
+  .badge.violet{background:var(--primary-tint); color:var(--primary);}
+  .badge.gold{background:var(--primary-tint); color:var(--primary);}
+  .badge.rose{background:var(--rose-tint); color:var(--rose);}
+  .badge.teal{background:var(--teal-tint); color:var(--teal);}
+  .badge.grey{background:var(--paper); color:var(--ink-soft);}
+
+  .person{display:flex; align-items:center; gap:10px;}
+  .person .pic{width:34px;height:34px;border-radius:50%; background:var(--primary-tint); color:var(--primary); display:flex;align-items:center;justify-content:center; font-family:'Fraunces',serif; font-weight:700; font-size:13px; flex-shrink:0;}
+  .person .name{font-weight:700; font-size:13.5px;}
+  .person .meta{font-size:12px; color:var(--ink-soft);}
+
+  .icon-link{width:30px;height:30px;border-radius:8px; border:1px solid var(--border); display:inline-flex; align-items:center;justify-content:center; cursor:pointer; color:var(--ink-soft); background:#fff;}
+  .icon-link:hover{border-color:var(--primary); color:var(--primary);}
+
+  /* Form styles */
+  .form-card{background:var(--panel); border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow); padding:30px 34px; max-width:760px;}
+  .form-row{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
+  .form-row.single{grid-template-columns:1fr;}
+  .field select, .field textarea{
+    width:100%; padding:12px 14px; border-radius:10px; border:1.5px solid var(--border);
+    font-family:'Manrope',sans-serif; font-size:14px; background:#fff; color:var(--ink); outline:none;
+  }
+  .field textarea{resize:vertical; min-height:80px;}
+  .pill-choice{display:flex; gap:8px; flex-wrap:wrap;}
+  .pill-choice .pill{padding:8px 15px; border-radius:99px; border:1.5px solid var(--border); font-size:13px; font-weight:600; color:var(--ink-soft); cursor:pointer;}
+  .pill-choice .pill.selected{background:var(--primary); border-color:var(--primary); color:#fff;}
+  .tag-choice{display:flex; gap:8px; flex-wrap:wrap; margin-top:4px;}
+  .tag-choice .tag{padding:7px 13px; border-radius:9px; background:var(--paper); border:1px solid var(--border); font-size:12.5px; color:var(--ink-soft); cursor:pointer;}
+  .tag-choice .tag.selected{background:var(--rose-tint); border-color:var(--rose); color:var(--rose);}
+  .form-actions{display:flex; justify-content:flex-end; gap:10px; margin-top:26px; padding-top:22px; border-top:1px solid var(--border);}
+  .legal-note{display:flex; gap:12px; align-items:flex-start; background:var(--gold-tint); border:1px solid #EBCB8E; border-radius:12px; padding:14px 16px; font-size:12.5px; color:#7A5417; margin-bottom:24px;}
+
+  /* Celula cards */
+  .celula-card{padding:20px 22px;}
+  .celula-card .top{display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:14px;}
+  .celula-card h3{font-size:16px; margin:0 0 2px;}
+  .celula-card .bairro{font-size:12.5px; color:var(--ink-soft);}
+  .celula-meta{display:grid; grid-template-columns:1fr 1fr; gap:10px 16px; margin:16px 0;}
+  .celula-meta .k{font-size:11px; color:var(--ink-soft); text-transform:uppercase; letter-spacing:0.04em; font-family:'IBM Plex Mono',monospace;}
+  .celula-meta .v{font-size:13.5px; font-weight:700; margin-top:2px;}
+  .bar-bg{height:7px; border-radius:99px; background:var(--paper); overflow:hidden;}
+  .bar-fill{height:100%; border-radius:99px; background:var(--teal);}
+
+  /* Kanban (Consolidação) */
+  .kanban{display:grid; grid-template-columns:repeat(4,1fr); gap:16px;}
+  @media (max-width:1100px){.kanban{grid-template-columns:repeat(2,1fr);}}
+  .kanban-col{background:var(--paper); border-radius:var(--radius); padding:14px;}
+  .kanban-col .col-head{display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; padding:0 4px;}
+  .kanban-col .col-head h4{font-size:12.5px; margin:0; text-transform:uppercase; letter-spacing:0.05em; color:var(--ink-soft); font-family:'IBM Plex Mono',monospace;}
+  .kanban-card{background:#fff; border:1px solid var(--border); border-radius:11px; padding:14px; margin-bottom:10px; box-shadow:var(--shadow);}
+  .kanban-card .name{font-weight:700; font-size:13.5px; margin-bottom:6px;}
+  .kanban-card .row{display:flex; justify-content:space-between; font-size:11.5px; color:var(--ink-soft); margin-top:4px;}
+
+  /* Bars chart (frequencia) */
+  .chart-bars{display:flex; align-items:flex-end; gap:14px; height:180px; padding:10px 6px 0;}
+  .chart-bars .bar-group{flex:1; display:flex; flex-direction:column; align-items:center; gap:8px; height:100%; justify-content:flex-end;}
+  .chart-bars .bar{width:100%; max-width:46px; border-radius:6px 6px 0 0;}
+  .chart-bars .bar-label{font-size:11px; color:var(--ink-soft); font-family:'IBM Plex Mono',monospace;}
+
+  .event-card{display:flex; gap:16px; padding:18px 20px;}
+  .event-date{width:56px; text-align:center; flex-shrink:0;}
+  .event-date .day{font-family:'Fraunces',serif; font-size:24px; font-weight:700; color:var(--primary); line-height:1;}
+  .event-date .mon{font-size:10.5px; text-transform:uppercase; color:var(--ink-soft); letter-spacing:0.06em; margin-top:4px;}
+
+  .mockup-flag{
+    position:fixed; bottom:18px; right:18px; z-index:50; max-width:320px;
+    background:var(--ink); color:#fff; font-family:'Manrope',sans-serif;
+    font-size:12px; line-height:1.4; padding:11px 16px; border-radius:14px;
+    display:flex; align-items:flex-start; gap:8px; box-shadow:0 8px 24px rgba(0,0,0,0.25);
+  }
+  .mockup-flag .dot{margin-top:5px;}
+  @media (max-width:640px){ .mockup-flag{display:none;} }
+  .mockup-flag .dot{width:6px;height:6px;border-radius:50%; background:var(--gold);}
+</style>
+</head>
+<body>
+
+<!-- ============ LOGIN ============ -->
+<div id="screen-login">
+  <div class="login-brand ribbon">
+    <div class="brand-mark">
+      <svg class="flame" width="26" height="34" viewBox="0 0 40 52" fill="none"><path d="M20 2C20 2 6 16 6 30C6 40 12 48 20 50C28 48 34 40 34 30C34 24 30 20 27 17C27 24 23 28 19 29C22 24 21 16 20 2Z" fill="#E5484D"/></svg>
+      <div class="wordmark">SARA <span>ENCONTRO COM DEUS</span></div>
+    </div>
+    <div class="lede">
+      <span class="eyebrow">Gestão Eclesiástica · Bairro Cuidos</span>
+      <h1>Cada célula, cada visita, cada vida — em um só lugar.</h1>
+      <p>Sistema interno da Igreja Sara Encontro com Deus para gestão de membros, células, consolidação e frequência. Rodando localmente, pronto para a nuvem quando a igreja quiser.</p>
+    </div>
+    <div class="login-foot">
+      <span>Teresina · PI</span>
+      <span>v1.1.0</span>
+      <span>Servidor local</span>
+    </div>
+  </div>
+  <div class="login-panel">
+    <div class="login-card">
+      <span class="eyebrow-2">Acesso restrito</span>
+      <h2>Entrar no sistema</h2>
+      <div class="field">
+        <label>E-mail institucional</label>
+        <input type="text" placeholder="secretaria@saraencontro.org.br">
+      </div>
+      <div class="field">
+        <label>Senha</label>
+        <input type="password" placeholder="••••••••••">
+      </div>
+      <button class="btn btn-primary" onclick="enterApp()">Entrar</button>
+      <div class="login-help">Esqueceu a senha? <a href="#">Fale com o administrador</a></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ APP SHELL ============ -->
+<div id="app">
+  <aside class="sidebar">
+    <div class="brand-mark">
+      <svg class="flame" width="20" height="26" viewBox="0 0 40 52" fill="none"><path d="M20 2C20 2 6 16 6 30C6 40 12 48 20 50C28 48 34 40 34 30C34 24 30 20 27 17C27 24 23 28 19 29C22 24 21 16 20 2Z" fill="#E5484D"/></svg>
+      <div class="wordmark">SARA <span>ENCONTRO COM DEUS</span></div>
+    </div>
+
+    <div class="nav-group-label">Visão geral</div>
+    <div class="nav-item active" data-target="dashboard"><span class="ic">🏠</span> Painel</div>
+
+    <div class="nav-group-label">Pessoas</div>
+    <div class="nav-item" data-target="membros"><span class="ic">👥</span> Membros</div>
+    <div class="nav-item" data-target="parceiros"><span class="ic">🤝</span> Parceiros de Deus</div>
+
+    <div class="nav-group-label">Células</div>
+    <div class="nav-item" data-target="celulas"><span class="ic">🌱</span> Células</div>
+    <div class="nav-item" data-target="celula12"><span class="ic">✝️</span> Célula de 12</div>
+    <div class="nav-item" data-target="raiox"><span class="ic">📊</span> Raio X mensal</div>
+
+    <div class="nav-group-label">Consolidação</div>
+    <div class="nav-item" data-target="novoconvertido"><span class="ic">📝</span> Ficha de conversão</div>
+    <div class="nav-item" data-target="consolidacao"><span class="ic">💬</span> Acompanhamento</div>
+
+    <div class="nav-group-label">Institucional</div>
+    <div class="nav-item" data-target="instituto"><span class="ic">🎓</span> Instituto de Vencedores</div>
+    <div class="nav-item" data-target="cultos"><span class="ic">🙏</span> Frequência de cultos</div>
+    <div class="nav-item" data-target="eventos"><span class="ic">📅</span> Eventos</div>
+
+    <div class="sidebar-foot">
+      <div class="avatar">SC</div>
+      <div>
+        <div style="font-weight:700; color:#fff;">Secretaria</div>
+        <div style="font-size:11.5px;">Perfil: Administrador</div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main">
+
+    <!-- ===== DASHBOARD ===== -->
+    <div class="view active" id="view-dashboard">
+      <div class="topbar">
+        <div>
+          <h1>Painel geral</h1>
+          <div class="sub">Domingo, 30 de agosto de 2026 · Igreja Sara Encontro com Deus, Bairro Cuidos</div>
+        </div>
+        <div class="topbar-actions">
+          <button class="btn btn-ghost btn-sm">Exportar relatório</button>
+          <button class="btn btn-primary btn-sm">+ Novo lançamento</button>
+        </div>
+      </div>
+      <div class="content">
+        <div class="grid cols-4">
+          <div class="card kpi">
+            <div class="icon-bar" style="background:var(--primary-tint);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4B2E82" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg></div>
+            <div class="value">312</div>
+            <div class="label">Membros cadastrados</div>
+            <span class="delta up">↑ 8 este mês</span>
+          </div>
+          <div class="card kpi">
+            <div class="icon-bar" style="background:var(--teal-tint);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2E8C79" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18"/></svg></div>
+            <div class="value">18</div>
+            <div class="label">Células ativas</div>
+            <span class="delta flat">2 em multiplicação</span>
+          </div>
+          <div class="card kpi">
+            <div class="icon-bar" style="background:var(--gold-tint);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8A5A16" stroke-width="2"><path d="M12 2 3 7l9 5 9-5-9-5Z"/><path d="M3 12l9 5 9-5"/></svg></div>
+            <div class="value">246</div>
+            <div class="label">Presença · culto de domingo</div>
+            <span class="delta up">↑ 12% vs. semana anterior</span>
+          </div>
+          <div class="card kpi">
+            <div class="icon-bar" style="background:var(--rose-tint);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#CF4677" stroke-width="2"><path d="M12 21s-7-4.35-9.5-8.5C.9 9.3 2.6 6 6 6c2 0 3.3 1 4 2.2C10.7 7 12 6 14 6c3.4 0 5.1 3.3 3.5 6.5C19.5 16.65 12 21 12 21Z"/></svg></div>
+            <div class="value">14</div>
+            <div class="label">Em consolidação</div>
+            <span class="delta flat">6 na 1ª semana</span>
+          </div>
+        </div>
+
+        <div class="section-title">
+          <div>
+            <span class="eyebrow">Últimos 6 cultos</span>
+            <h2>Frequência aos cultos oficiais</h2>
+          </div>
+        </div>
+        <div class="grid cols-3">
+          <div class="card" style="grid-column:span 2; padding:22px 26px;">
+            <div class="chart-bars">
+              <div class="bar-group"><div class="bar" style="height:62%; background:var(--primary-tint);"></div><div class="bar-label">Ter 04</div></div>
+              <div class="bar-group"><div class="bar" style="height:74%; background:var(--gold-tint);"></div><div class="bar-label">Sáb 08</div></div>
+              <div class="bar-group"><div class="bar" style="height:91%; background:var(--primary);"></div><div class="bar-label">Dom 09</div></div>
+              <div class="bar-group"><div class="bar" style="height:58%; background:var(--primary-tint);"></div><div class="bar-label">Ter 11</div></div>
+              <div class="bar-group"><div class="bar" style="height:80%; background:var(--gold-tint);"></div><div class="bar-label">Sáb 15</div></div>
+              <div class="bar-group"><div class="bar" style="height:97%; background:var(--primary);"></div><div class="bar-label">Dom 16</div></div>
+            </div>
+          </div>
+          <div class="card" style="padding:22px 26px;">
+            <div class="eyebrow" style="display:block; margin-bottom:14px;">Instituto de Vencedores</div>
+            <div style="display:flex; flex-direction:column; gap:14px;">
+              <div>
+                <div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:6px;"><span>Módulo 1 — Fundamentos</span><span class="mono" style="font-size:12px; color:var(--ink-soft);">42/50</span></div>
+                <div class="bar-bg"><div class="bar-fill" style="width:84%; background:var(--primary);"></div></div>
+              </div>
+              <div>
+                <div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:6px;"><span>Módulo 2 — Liderança</span><span class="mono" style="font-size:12px; color:var(--ink-soft);">27/50</span></div>
+                <div class="bar-bg"><div class="bar-fill" style="width:54%; background:var(--gold);"></div></div>
+              </div>
+              <div>
+                <div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:6px;"><span>Módulo 3 — Envio</span><span class="mono" style="font-size:12px; color:var(--ink-soft);">11/50</span></div>
+                <div class="bar-bg"><div class="bar-fill" style="width:22%; background:var(--rose);"></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-title">
+          <div><span class="eyebrow">Atividade recente</span><h2>Últimos registros da secretaria</h2></div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <tr><th>Evento</th><th>Célula / Origem</th><th>Responsável</th><th>Quando</th></tr>
+            <tr><td>Ficha de novo convertido cadastrada</td><td>Célula Videira — Bairro Cuidos</td><td>Marta Nunes</td><td class="mono">hoje, 09:40</td></tr>
+            <tr><td>Frequência de célula lançada</td><td>Célula Oliveiras</td><td>João Pedro</td><td class="mono">ontem, 20:15</td></tr>
+            <tr><td>Aprovação registrada — Instituto de Vencedores</td><td>Turma Módulo 1</td><td>Secretaria</td><td class="mono">ontem, 14:02</td></tr>
+            <tr><td>Novo evento institucional criado</td><td>Vigília de Setembro</td><td>Pr. Enoque</td><td class="mono">2 dias atrás</td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== MEMBROS ===== -->
+    <div class="view" id="view-membros">
+      <div class="topbar">
+        <div><h1>Membros</h1><div class="sub">Cadastro, alteração e histórico dos membros da igreja</div></div>
+        <div class="topbar-actions"><button class="btn btn-primary btn-sm">+ Novo membro</button></div>
+      </div>
+      <div class="content">
+        <div class="table-wrap">
+          <div class="table-toolbar">
+            <div class="search">🔍 Buscar por nome, bairro ou célula</div>
+            <div style="display:flex; gap:8px;">
+              <span class="badge grey">Todos · 312</span>
+            </div>
+          </div>
+          <table style="margin-top:10px;">
+            <tr><th>Membro</th><th>Bairro</th><th>Célula</th><th>Status</th><th>Desde</th><th></th></tr>
+            <tr>
+              <td><div class="person"><div class="pic">RS</div><div><div class="name">Renata Sousa</div><div class="meta">(86) 99123-4455</div></div></div></td>
+              <td>Cuidos</td><td>Videira</td><td><span class="badge teal">Membro</span></td><td class="mono">mar/2023</td>
+              <td><span class="icon-link">✎</span></td>
+            </tr>
+            <tr>
+              <td><div class="person"><div class="pic">JP</div><div><div class="name">João Pedro Alves</div><div class="meta">(86) 99876-1122</div></div></div></td>
+              <td>Vermelha</td><td>Oliveiras</td><td><span class="badge gold">Novo convertido</span></td><td class="mono">jul/2026</td>
+              <td><span class="icon-link">✎</span></td>
+            </tr>
+            <tr>
+              <td><div class="person"><div class="pic">MF</div><div><div class="name">Maria de Fátima Lima</div><div class="meta">(86) 99345-7788</div></div></div></td>
+              <td>Cuidos</td><td>Videira</td><td><span class="badge violet">Parceiro de Deus</span></td><td class="mono">jan/2021</td>
+              <td><span class="icon-link">✎</span></td>
+            </tr>
+            <tr>
+              <td><div class="person"><div class="pic">EC</div><div><div class="name">Edvan Costa</div><div class="meta">(86) 99654-3321</div></div></div></td>
+              <td>Aeroporto</td><td>— sem célula —</td><td><span class="badge rose">Visitante</span></td><td class="mono">ago/2026</td>
+              <td><span class="icon-link">✎</span></td>
+            </tr>
+            <tr>
+              <td><div class="person"><div class="pic">LB</div><div><div class="name">Luana Borges</div><div class="meta">(86) 99222-9090</div></div></div></td>
+              <td>Cuidos</td><td>Videira</td><td><span class="badge teal">Membro</span></td><td class="mono">set/2019</td>
+              <td><span class="icon-link">✎</span></td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== PARCEIROS ===== -->
+    <div class="view" id="view-parceiros">
+      <div class="topbar">
+        <div><h1>Parceiros de Deus</h1><div class="sub">Mapeamento qualitativo — RF08</div></div>
+        <div class="topbar-actions"><button class="btn btn-primary btn-sm">+ Classificar membro</button></div>
+      </div>
+      <div class="content">
+        <div class="legal-note">
+          ⚠️ <div><strong>Sem valores monetários.</strong> Este módulo registra apenas quem é dizimista, ofertante ou parceiro de Deus — nenhum valor em dinheiro, PIX, cartão ou boleto é processado ou armazenado pelo sistema.</div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <tr><th>Nome</th><th>Célula</th><th>Classificação</th><th>Desde</th></tr>
+            <tr><td><div class="person"><div class="pic">MF</div><div class="name">Maria de Fátima Lima</div></div></td><td>Videira</td><td><span class="badge gold">Dizimista</span></td><td class="mono">jan/2021</td></tr>
+            <tr><td><div class="person"><div class="pic">RS</div><div class="name">Renata Sousa</div></div></td><td>Videira</td><td><span class="badge violet">Parceiro de Deus</span></td><td class="mono">mar/2023</td></tr>
+            <tr><td><div class="person"><div class="pic">LB</div><div class="name">Luana Borges</div></div></td><td>Videira</td><td><span class="badge teal">Ofertante</span></td><td class="mono">set/2019</td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== CÉLULAS ===== -->
+    <div class="view" id="view-celulas">
+      <div class="topbar">
+        <div><h1>Células</h1><div class="sub">Multiplicação, liderança e frequência semanal — RF02</div></div>
+        <div class="topbar-actions"><button class="btn btn-primary btn-sm">+ Nova célula</button></div>
+      </div>
+      <div class="content">
+        <div class="grid cols-3">
+          <div class="card celula-card">
+            <div class="top">
+              <div><h3>Célula Videira</h3><div class="bairro">Bairro Cuidos · Terças, 19h30</div></div>
+              <span class="badge teal">Ativa</span>
+            </div>
+            <div class="celula-meta">
+              <div><div class="k">Líder</div><div class="v">João Pedro Alves</div></div>
+              <div><div class="k">Co-líder</div><div class="v">Marta Nunes</div></div>
+              <div><div class="k">Anfitrião</div><div class="v">Fam. Sousa</div></div>
+              <div><div class="k">Membros</div><div class="v">14</div></div>
+            </div>
+            <div style="font-size:12px; color:var(--ink-soft); margin-bottom:6px;">Frequência média · 4 semanas</div>
+            <div class="bar-bg"><div class="bar-fill" style="width:86%;"></div></div>
+          </div>
+          <div class="card celula-card">
+            <div class="top">
+              <div><h3>Célula Oliveiras</h3><div class="bairro">Bairro Vermelha · Sábados, 16h</div></div>
+              <span class="badge teal">Ativa</span>
+            </div>
+            <div class="celula-meta">
+              <div><div class="k">Líder</div><div class="v">Edvan Costa</div></div>
+              <div><div class="k">Co-líder</div><div class="v">Luana Borges</div></div>
+              <div><div class="k">Anfitrião</div><div class="v">Fam. Lima</div></div>
+              <div><div class="k">Membros</div><div class="v">9</div></div>
+            </div>
+            <div style="font-size:12px; color:var(--ink-soft); margin-bottom:6px;">Frequência média · 4 semanas</div>
+            <div class="bar-bg"><div class="bar-fill" style="width:63%; background:var(--gold);"></div></div>
+          </div>
+          <div class="card celula-card">
+            <div class="top">
+              <div><h3>Célula Raízes</h3><div class="bairro">Bairro Cuidos · Quintas, 19h</div></div>
+              <span class="badge gold">Em multiplicação</span>
+            </div>
+            <div class="celula-meta">
+              <div><div class="k">Líder</div><div class="v">Renata Sousa</div></div>
+              <div><div class="k">Co-líder</div><div class="v">— em treinamento —</div></div>
+              <div><div class="k">Anfitrião</div><div class="v">Fam. Alves</div></div>
+              <div><div class="k">Membros</div><div class="v">17</div></div>
+            </div>
+            <div style="font-size:12px; color:var(--ink-soft); margin-bottom:6px;">Frequência média · 4 semanas</div>
+            <div class="bar-bg"><div class="bar-fill" style="width:92%;"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== CÉLULA DE 12 ===== -->
+    <div class="view" id="view-celula12">
+      <div class="topbar">
+        <div><h1>Célula de 12</h1><div class="sub">Reuniões quinzenais da alta liderança — RF03</div></div>
+        <div class="topbar-actions"><button class="btn btn-primary btn-sm">+ Registrar encontro</button></div>
+      </div>
+      <div class="content">
+        <div class="grid cols-3">
+          <div class="card kpi"><div class="value">12</div><div class="label">Discípulos G-12 do pastor</div></div>
+          <div class="card kpi"><div class="value">9</div><div class="label">Presentes no último encontro</div></div>
+          <div class="card kpi"><div class="value">14 set</div><div class="label">Próximo encontro quinzenal</div></div>
+        </div>
+        <div class="section-title"><div><span class="eyebrow">Discipulado</span><h2>Discípulos G-12 · Pr. Enoque</h2></div></div>
+        <div class="table-wrap">
+          <table>
+            <tr><th>Discípulo</th><th>G-144 de</th><th>Presença 14/08</th><th>Presença 28/08</th></tr>
+            <tr><td><div class="person"><div class="pic">JP</div><div class="name">João Pedro Alves</div></div></td><td>Renata Sousa</td><td><span class="badge teal">Presente</span></td><td><span class="badge teal">Presente</span></td></tr>
+            <tr><td><div class="person"><div class="pic">EC</div><div class="name">Edvan Costa</div></div></td><td>Luana Borges</td><td><span class="badge teal">Presente</span></td><td><span class="badge rose">Ausente</span></td></tr>
+            <tr><td><div class="person"><div class="pic">MN</div><div class="name">Marta Nunes</div></div></td><td>João Pedro Alves</td><td><span class="badge rose">Ausente</span></td><td><span class="badge teal">Presente</span></td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== RAIO X ===== -->
+    <div class="view" id="view-raiox">
+      <div class="topbar">
+        <div><h1>Raio X — Relatório mensal</h1><div class="sub">Consolidado por célula, mês de referência</div></div>
+        <div class="topbar-actions"><button class="btn btn-ghost btn-sm">Baixar PDF</button><button class="btn btn-primary btn-sm">Gerar relatório</button></div>
+      </div>
+      <div class="content">
+        <div class="card" style="padding:24px 26px;">
+          <div class="grid cols-4" style="margin-bottom:22px;">
+            <div><div class="mono" style="font-size:11px; color:var(--ink-soft); text-transform:uppercase;">Célula</div><div style="font-weight:700;">Videira</div></div>
+            <div><div class="mono" style="font-size:11px; color:var(--ink-soft); text-transform:uppercase;">Líder</div><div style="font-weight:700;">João Pedro Alves</div></div>
+            <div><div class="mono" style="font-size:11px; color:var(--ink-soft); text-transform:uppercase;">Mês / Ano</div><div style="font-weight:700;">Agosto / 2026</div></div>
+            <div><div class="mono" style="font-size:11px; color:var(--ink-soft); text-transform:uppercase;">Total membros</div><div style="font-weight:700;">14</div></div>
+          </div>
+          <table>
+            <tr><th>Nº</th><th>Integrante</th><th>Telefone</th><th>Presenças no mês</th><th>Consolidação</th><th>Inst. Vencedores</th></tr>
+            <tr><td class="mono">01</td><td>Ana Karla Rocha</td><td class="mono">(86) 99911-2233</td><td><span class="badge teal">4/4</span></td><td><span class="badge grey">—</span></td><td><span class="badge violet">M1</span></td></tr>
+            <tr><td class="mono">02</td><td>Pedro Henrique Dias</td><td class="mono">(86) 99822-1010</td><td><span class="badge gold">3/4</span></td><td><span class="badge teal">Pós-revisão</span></td><td><span class="badge grey">—</span></td></tr>
+            <tr><td class="mono">03</td><td>Vitória Menezes</td><td class="mono">(86) 99733-4545</td><td><span class="badge teal">4/4</span></td><td><span class="badge grey">—</span></td><td><span class="badge violet">M2</span></td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== FICHA NOVO CONVERTIDO ===== -->
+    <div class="view" id="view-novoconvertido">
+      <div class="topbar">
+        <div><h1>Ficha de novo convertido</h1><div class="sub">Triagem digital — RF04</div></div>
+        <div class="topbar-actions"><button class="btn btn-ghost btn-sm">Cancelar</button></div>
+      </div>
+      <div class="content">
+        <div class="form-card">
+          <div class="pill-choice" style="margin-bottom:22px;">
+            <div class="pill selected">Novo convertido</div>
+            <div class="pill">Reconciliação</div>
+            <div class="pill">Visitante</div>
+          </div>
+          <div class="form-row">
+            <div class="field"><label>Nome completo</label><input placeholder="Nome e sobrenome"></div>
+            <div class="field"><label>Data de nascimento</label><input placeholder="dd/mm/aaaa"></div>
+          </div>
+          <div class="form-row single"><div class="field"><label>Endereço</label><input placeholder="Rua, número"></div></div>
+          <div class="form-row">
+            <div class="field"><label>Bairro</label><input placeholder="Ex: Cuidos" value="Cuidos"></div>
+            <div class="field"><label>WhatsApp</label><input placeholder="(86) 9####-####"></div>
+          </div>
+          <div class="form-row">
+            <div class="field"><label>Participa de alguma célula?</label>
+              <div class="pill-choice"><div class="pill selected">Sim</div><div class="pill">Não</div></div>
+            </div>
+            <div class="field"><label>Nome do líder da célula</label><input placeholder="Ex: João Pedro Alves"></div>
+          </div>
+          <div class="form-row single"><div class="field"><label>Veio acompanhado por alguém?</label><input placeholder="Nome de quem convidou"></div></div>
+          <div class="form-row single">
+            <div class="field">
+              <label>Necessidade de oração</label>
+              <div class="tag-choice">
+                <div class="tag selected">Espiritual</div><div class="tag">Saúde</div><div class="tag">Emocional</div><div class="tag">Financeiro</div><div class="tag">Mental</div>
+              </div>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="field"><label>Será acompanhado pelo líder</label><input placeholder="Nome do responsável"></div>
+            <div class="field"><label>Data da ficha</label><input placeholder="dd/mm/aaaa"></div>
+          </div>
+          <div class="form-row single"><div class="field"><label>Observação</label><textarea placeholder="Observações adicionais da secretaria ou do líder"></textarea></div></div>
+          <div class="form-actions">
+            <button class="btn btn-ghost">Salvar rascunho</button>
+            <button class="btn btn-primary">Concluir cadastro</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== CONSOLIDAÇÃO ===== -->
+    <div class="view" id="view-consolidacao">
+      <div class="topbar">
+        <div><h1>Acompanhamento de consolidação</h1><div class="sub">1 visita semanal, vínculo com a célula de origem — RF06</div></div>
+        <div class="topbar-actions"><button class="btn btn-primary btn-sm">+ Novo convertido</button></div>
+      </div>
+      <div class="content">
+        <div class="kanban">
+          <div class="kanban-col">
+            <div class="col-head"><h4>Contato inicial</h4><span class="badge grey">3</span></div>
+            <div class="kanban-card"><div class="name">Edvan Costa</div><div class="row"><span>Célula Oliveiras</span><span class="mono">há 2 dias</span></div></div>
+            <div class="kanban-card"><div class="name">Ana Beatriz Melo</div><div class="row"><span>Célula Videira</span><span class="mono">há 1 dia</span></div></div>
+          </div>
+          <div class="kanban-col">
+            <div class="col-head"><h4>1ª visita</h4><span class="badge grey">2</span></div>
+            <div class="kanban-card"><div class="name">Pedro Henrique Dias</div><div class="row"><span>Líder: Renata Sousa</span><span class="mono">08/08</span></div></div>
+          </div>
+          <div class="kanban-col">
+            <div class="col-head"><h4>Em acompanhamento</h4><span class="badge grey">5</span></div>
+            <div class="kanban-card"><div class="name">Vitória Menezes</div><div class="row"><span>Líder: João Pedro</span><span class="mono">3ª semana</span></div></div>
+            <div class="kanban-card"><div class="name">Carlos Eduardo</div><div class="row"><span>Líder: Marta Nunes</span><span class="mono">2ª semana</span></div></div>
+          </div>
+          <div class="kanban-col">
+            <div class="col-head"><h4>Concluído → Membro</h4><span class="badge teal">4</span></div>
+            <div class="kanban-card"><div class="name">Ana Karla Rocha</div><div class="row"><span>Célula Videira</span><span class="mono">migrado RF01</span></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== INSTITUTO DE VENCEDORES ===== -->
+    <div class="view" id="view-instituto">
+      <div class="topbar">
+        <div><h1>Instituto de Vencedores</h1><div class="sub">Turmas, frequência e aprovação — RF05</div></div>
+        <div class="topbar-actions"><button class="btn btn-primary btn-sm">+ Nova turma</button></div>
+      </div>
+      <div class="content">
+        <div class="table-wrap">
+          <table>
+            <tr><th>Turma</th><th>Horário</th><th>Matriculados</th><th>Frequência</th><th>Status</th></tr>
+            <tr><td>Módulo 1 — Fundamentos</td><td>Quartas, 19h</td><td>50</td><td>
+              <div class="bar-bg" style="width:120px;"><div class="bar-fill" style="width:84%;"></div></div>
+            </td><td><span class="badge teal">Em curso</span></td></tr>
+            <tr><td>Módulo 2 — Liderança</td><td>Quartas, 20h30</td><td>50</td><td>
+              <div class="bar-bg" style="width:120px;"><div class="bar-fill" style="width:54%; background:var(--gold);"></div></div>
+            </td><td><span class="badge gold">Em curso</span></td></tr>
+            <tr><td>Módulo 3 — Envio</td><td>Sextas, 19h</td><td>50</td><td>
+              <div class="bar-bg" style="width:120px;"><div class="bar-fill" style="width:22%; background:var(--rose);"></div></div>
+            </td><td><span class="badge rose">Início recente</span></td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== FREQUÊNCIA DE CULTOS ===== -->
+    <div class="view" id="view-cultos">
+      <div class="topbar">
+        <div><h1>Frequência de cultos</h1><div class="sub">Lançamento quantitativo — terça, sábado e domingo — RF07</div></div>
+        <div class="topbar-actions"><button class="btn btn-primary btn-sm">+ Lançar frequência</button></div>
+      </div>
+      <div class="content">
+        <div class="grid cols-2">
+          <div class="form-card" style="max-width:none;">
+            <div class="form-row">
+              <div class="field"><label>Culto</label>
+                <div class="pill-choice"><div class="pill">Terça</div><div class="pill">Sábado</div><div class="pill selected">Domingo</div></div>
+              </div>
+              <div class="field"><label>Data</label><input placeholder="dd/mm/aaaa" value="30/08/2026"></div>
+            </div>
+            <div class="form-row single"><div class="field"><label>Quantitativo de presentes</label><input placeholder="Ex: 246" value="246"></div></div>
+            <div class="form-actions"><button class="btn btn-primary">Registrar</button></div>
+          </div>
+          <div class="card" style="padding:22px 26px;">
+            <div class="eyebrow" style="display:block; margin-bottom:14px;">Histórico recente</div>
+            <div class="chart-bars" style="height:150px;">
+              <div class="bar-group"><div class="bar" style="height:62%; background:var(--primary-tint);"></div><div class="bar-label">Ter</div></div>
+              <div class="bar-group"><div class="bar" style="height:74%; background:var(--gold-tint);"></div><div class="bar-label">Sáb</div></div>
+              <div class="bar-group"><div class="bar" style="height:97%; background:var(--primary);"></div><div class="bar-label">Dom</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== EVENTOS ===== -->
+    <div class="view" id="view-eventos">
+      <div class="topbar">
+        <div><h1>Eventos institucionais</h1><div class="sub">Calendário da igreja — RF09</div></div>
+        <div class="topbar-actions"><button class="btn btn-primary btn-sm">+ Novo evento</button></div>
+      </div>
+      <div class="content">
+        <div class="grid cols-2">
+          <div class="card event-card">
+            <div class="event-date"><div class="day">14</div><div class="mon">Set</div></div>
+            <div><h3 style="margin:0 0 4px; font-size:15px;">Encontro Célula de 12</h3><div style="font-size:13px; color:var(--ink-soft);">19h · Sala de liderança</div></div>
+          </div>
+          <div class="card event-card">
+            <div class="event-date"><div class="day">20</div><div class="mon">Set</div></div>
+            <div><h3 style="margin:0 0 4px; font-size:15px;">Vigília de Setembro</h3><div style="font-size:13px; color:var(--ink-soft);">22h · Templo sede</div></div>
+          </div>
+          <div class="card event-card">
+            <div class="event-date"><div class="day">27</div><div class="mon">Set</div></div>
+            <div><h3 style="margin:0 0 4px; font-size:15px;">Formatura Instituto de Vencedores — Módulo 1</h3><div style="font-size:13px; color:var(--ink-soft);">18h · Auditório</div></div>
+          </div>
+          <div class="card event-card">
+            <div class="event-date"><div class="day">04</div><div class="mon">Out</div></div>
+            <div><h3 style="margin:0 0 4px; font-size:15px;">Multiplicação Célula Raízes</h3><div style="font-size:13px; color:var(--ink-soft);">19h · Bairro Cuidos</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<div class="mockup-flag"><span class="dot"></span> Protótipo de apresentação — clique nos itens do menu à esquerda para navegar entre as telas</div>
+
+<script>
+  function enterApp(){
+    document.getElementById('screen-login').style.display = 'none';
+    document.getElementById('app').classList.add('active');
+  }
+  document.querySelectorAll('.nav-item').forEach(function(item){
+    item.addEventListener('click', function(){
+      document.querySelectorAll('.nav-item').forEach(function(i){ i.classList.remove('active'); });
+      item.classList.add('active');
+      var target = item.getAttribute('data-target');
+      document.querySelectorAll('.view').forEach(function(v){ v.classList.remove('active'); });
+      document.getElementById('view-' + target).classList.add('active');
+      document.querySelector('.content') && window.scrollTo(0,0);
+    });
+  });
+  // pill / tag demo interactivity (visual only)
+  document.querySelectorAll('.pill-choice').forEach(function(group){
+    group.querySelectorAll('.pill').forEach(function(p){
+      p.addEventListener('click', function(){
+        group.querySelectorAll('.pill').forEach(function(x){ x.classList.remove('selected'); });
+        p.classList.add('selected');
+      });
+    });
+  });
+  document.querySelectorAll('.tag').forEach(function(t){
+    t.addEventListener('click', function(){ t.classList.toggle('selected'); });
+  });
+</script>
+</body>
+</html>
