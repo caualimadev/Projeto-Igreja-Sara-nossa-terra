@@ -120,7 +120,11 @@
     color:#fff;
     padding:24px 16px;
     display:flex; flex-direction:column;
-    position:sticky; top:0; height:100vh;
+    position:sticky;
+    top:0; 
+    overflow-y: auto;
+    height:100vh; 
+    scrollbar-width:none;
   }
   .sidebar .brand-mark{padding:6px 8px 22px; border-bottom:1px solid rgba(255,255,255,0.12); margin-bottom:16px;}
   .sidebar .brand-mark .wordmark{font-size:17px;}
@@ -147,7 +151,7 @@
   .avatar{width:32px;height:32px;border-radius:50%; background:var(--gold); color:var(--primary-dark);
     display:flex;align-items:center;justify-content:center; font-weight:800; font-family:'Fraunces',serif; flex-shrink:0;}
 
-  .main{padding:0; overflow-x:hidden;}
+  .main{padding:0; overflow-x:hidden; overflow-y: auto; flex: 1;}
   .topbar{
     background:var(--panel); border-bottom:1px solid var(--border);
     padding:20px 36px; display:flex; align-items:center; justify-content:space-between;
