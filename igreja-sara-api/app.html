@@ -1,0 +1,1174 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sistema de Gestão — Igreja Sara Encontro com Deus</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1D2733;
+    --ink-soft:#647082;
+    --paper:#F4F5F7;
+    --panel:#FFFFFF;
+    --primary:#1B3A6B;
+    --primary-dark:#122A50;
+    --primary-tint:#E7EDF6;
+    --gold:#C21F1F;
+    --gold-tint:#FBEAEA;
+    --rose:#A31818;
+    --rose-tint:#F6D9D9;
+    --teal:#2E8C79;
+    --teal-tint:#DFF1EB;
+    --border:#E3E6EC;
+    --radius:14px;
+    --shadow:0 1px 2px rgba(35,26,52,0.04), 0 8px 24px -12px rgba(35,26,52,0.14);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:'Manrope',sans-serif;
+    background:var(--paper);
+    color:var(--ink);
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,.display{
+    font-family:'Fraunces',serif;
+    font-weight:600;
+    letter-spacing:-0.01em;
+  }
+  .mono{font-family:'IBM Plex Mono',monospace; letter-spacing:0.02em;}
+  ::selection{background:var(--gold-tint);}
+
+  /* ---------- Ribbon signature motif ---------- */
+  .ribbon{
+    position:relative;
+    overflow:hidden;
+  }
+  .ribbon svg{display:block;width:100%;height:auto;}
+
+  /* ---------- LOGIN SCREEN ---------- */
+  #screen-login{
+    min-height:100vh;
+    display:grid;
+    grid-template-columns:1.05fr 1fr;
+  }
+  @media (max-width:860px){ #screen-login{grid-template-columns:1fr;} .login-brand{min-height:280px;} }
+  .login-brand{
+    background:linear-gradient(160deg, var(--primary-dark) 0%, var(--primary) 100%);
+    color:#fff;
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+    padding:56px 56px 40px;
+    position:relative;
+  }
+  .brand-mark{
+    display:flex; align-items:center; gap:12px;
+  }
+  .brand-mark .glyph{
+    width:40px;height:40px;border-radius:10px;
+    background:rgba(255,255,255,0.12);
+    display:flex;align-items:center;justify-content:center;
+  }
+  .brand-mark .wordmark{font-family:'Fraunces',serif; font-size:20px; font-weight:600;}
+  .brand-mark .wordmark span{color:var(--gold); font-style:normal; font-weight:400; font-size:0.65em; display:block; letter-spacing:0.06em;}
+  .brand-mark .flame{flex-shrink:0;}
+  .login-brand .lede{max-width:420px;}
+  .login-brand .lede .eyebrow{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px; letter-spacing:0.12em; text-transform:uppercase;
+    color:var(--gold); margin-bottom:18px; display:block;
+  }
+  .login-brand h1{font-size:40px; line-height:1.12; margin:0 0 14px; color:#fff;}
+  .login-brand p{color:rgba(255,255,255,0.72); font-size:15px; line-height:1.6; margin:0;}
+  .login-foot{display:flex; gap:28px; font-size:13px; color:rgba(255,255,255,0.55);}
+  .login-panel{
+    display:flex; align-items:center; justify-content:center; padding:40px;
+  }
+  .login-card{width:100%; max-width:360px;}
+  .login-card .eyebrow-2{font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--ink-soft);}
+  .login-card h2{font-size:26px; margin:6px 0 28px;}
+  .field{margin-bottom:18px;}
+  .field label{display:block; font-size:13px; font-weight:600; margin-bottom:7px; color:var(--ink);}
+  .field input{
+    width:100%; padding:12px 14px; border-radius:10px; border:1.5px solid var(--border);
+    font-family:'Manrope',sans-serif; font-size:14px; background:#fff; color:var(--ink);
+    outline:none; transition:border-color .15s;
+  }
+  .field input:focus{border-color:var(--primary);}
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:8px;
+    padding:13px 22px; border-radius:10px; border:none; cursor:pointer;
+    font-family:'Manrope',sans-serif; font-weight:700; font-size:14px;
+    transition:transform .12s, box-shadow .12s;
+  }
+  .btn:active{transform:translateY(1px);}
+  .btn-primary{background:var(--primary); color:#fff; width:100%;}
+  .btn-primary:hover{background:var(--primary-dark);}
+  .btn-ghost{background:transparent; color:var(--primary); border:1.5px solid var(--border);}
+  .login-help{margin-top:16px; text-align:center; font-size:13px; color:var(--ink-soft);}
+  .login-help a{color:var(--primary); text-decoration:none; font-weight:600;}
+
+  /* ---------- APP SHELL ---------- */
+  #app{display:none; min-height:100vh; grid-template-columns:250px 1fr;}
+  #app.active{display:grid;}
+  .sidebar{
+    background:var(--primary-dark);
+    color:#fff;
+    padding:24px 16px;
+    display:flex; flex-direction:column;
+    position:sticky;
+    top:0; 
+    overflow-y: auto;
+    height:100vh; 
+    scrollbar-width:none;
+  }
+  .sidebar .brand-mark{padding:6px 8px 22px; border-bottom:1px solid rgba(255,255,255,0.12); margin-bottom:16px;}
+  .sidebar .brand-mark .wordmark{font-size:17px;}
+  .nav-group-label{
+    font-family:'IBM Plex Mono',monospace; font-size:10.5px; letter-spacing:0.12em;
+    text-transform:uppercase; color:rgba(255,255,255,0.4); padding:14px 12px 8px;
+  }
+  .nav-item{
+    display:flex; align-items:center; gap:12px;
+    padding:12px 12px; border-radius:9px; color:rgba(255,255,255,0.85);
+    text-decoration:none; font-size:14.5px; font-weight:600; cursor:pointer;
+    margin-bottom:3px; border-left:3px solid transparent;
+  }
+  .nav-item .ic{font-size:17px; flex-shrink:0; width:20px; text-align:center;}
+  .nav-item:hover{background:rgba(255,255,255,0.06); color:#fff;}
+  .nav-item.active{
+    background:rgba(255,255,255,0.1); color:#fff;
+    border-left:3px solid var(--gold);
+  }
+  .sidebar-foot{
+    margin-top:auto; padding-top:16px; border-top:1px solid rgba(255,255,255,0.12);
+    display:flex; align-items:center; gap:10px; font-size:13px; color:rgba(255,255,255,0.6);
+  }
+  .avatar{width:32px;height:32px;border-radius:50%; background:var(--gold); color:var(--primary-dark);
+    display:flex;align-items:center;justify-content:center; font-weight:800; font-family:'Fraunces',serif; flex-shrink:0;}
+
+  .main{padding:0; overflow-x:hidden; overflow-y: auto; flex: 1;}
+  .topbar{
+    background:var(--panel); border-bottom:1px solid var(--border);
+    padding:20px 36px; display:flex; align-items:center; justify-content:space-between;
+    position:sticky; top:0; z-index:5;
+  }
+  .topbar h1{font-size:22px; margin:0;}
+  .topbar .sub{font-size:13px; color:var(--ink-soft); margin-top:2px;}
+  .topbar-actions{display:flex; gap:10px; align-items:center;}
+  .btn-sm{padding:9px 16px; font-size:13px;}
+  .content{padding:28px 36px 64px;}
+  .view{display:none;}
+  .view.active{display:block;}
+
+  /* Reusable pieces */
+  .grid{display:grid; gap:18px;}
+  .cols-4{grid-template-columns:repeat(4,1fr);}
+  .cols-3{grid-template-columns:repeat(3,1fr);}
+  .cols-2{grid-template-columns:repeat(2,1fr);}
+  @media (max-width:1100px){.cols-4{grid-template-columns:repeat(2,1fr);} .cols-3{grid-template-columns:repeat(2,1fr);}}
+
+  .card{background:var(--panel); border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow);}
+  .kpi{padding:20px 22px;}
+  .kpi .icon-bar{width:34px; height:34px; border-radius:9px; display:flex;align-items:center;justify-content:center; margin-bottom:14px;}
+  .kpi .value{font-family:'Fraunces',serif; font-size:30px; font-weight:600; line-height:1;}
+  .kpi .label{font-size:13px; color:var(--ink-soft); margin-top:6px;}
+  .kpi .delta{font-size:12px; font-weight:700; margin-top:10px; display:inline-block;}
+  .delta.up{color:var(--teal);}
+  .delta.flat{color:var(--ink-soft);}
+
+  .section-title{display:flex; align-items:baseline; justify-content:space-between; margin:34px 0 16px;}
+  .section-title h2{font-size:17px; margin:0;}
+  .section-title .eyebrow{font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--ink-soft); text-transform:uppercase; letter-spacing:0.08em;}
+
+  table{width:100%; border-collapse:collapse; font-size:13.5px;}
+  th{text-align:left; font-family:'IBM Plex Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:0.06em; color:var(--ink-soft); font-weight:500; padding:0 16px 12px; border-bottom:1px solid var(--border);}
+  td{padding:14px 16px; border-bottom:1px solid var(--border); vertical-align:middle;}
+  tr:last-child td{border-bottom:none;}
+  .table-wrap{background:var(--panel); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; box-shadow:var(--shadow);}
+  .table-toolbar{display:flex; justify-content:space-between; align-items:center; padding:18px 18px 4px;}
+  .search{
+    display:flex; align-items:center; gap:8px; background:var(--paper); border:1px solid var(--border);
+    border-radius:9px; padding:9px 13px; font-size:13px; color:var(--ink-soft); min-width:240px;
+  }
+
+  .badge{display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:700; padding:5px 11px; border-radius:99px;}
+  .badge.violet{background:var(--primary-tint); color:var(--primary);}
+  .badge.gold{background:var(--primary-tint); color:var(--primary);}
+  .badge.rose{background:var(--rose-tint); color:var(--rose);}
+  .badge.teal{background:var(--teal-tint); color:var(--teal);}
+  .badge.grey{background:var(--paper); color:var(--ink-soft);}
+
+  .person{display:flex; align-items:center; gap:10px;}
+  .person .pic{width:34px;height:34px;border-radius:50%; background:var(--primary-tint); color:var(--primary); display:flex;align-items:center;justify-content:center; font-family:'Fraunces',serif; font-weight:700; font-size:13px; flex-shrink:0;}
+  .person .name{font-weight:700; font-size:13.5px;}
+  .person .meta{font-size:12px; color:var(--ink-soft);}
+
+  .icon-link{width:30px;height:30px;border-radius:8px; border:1px solid var(--border); display:inline-flex; align-items:center;justify-content:center; cursor:pointer; color:var(--ink-soft); background:#fff;}
+  .icon-link:hover{border-color:var(--primary); color:var(--primary);}
+
+  /* Form styles */
+  .form-card{background:var(--panel); border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow); padding:30px 34px; max-width:760px;}
+  .form-row{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
+  .form-row.single{grid-template-columns:1fr;}
+  .field select, .field textarea{
+    width:100%; padding:12px 14px; border-radius:10px; border:1.5px solid var(--border);
+    font-family:'Manrope',sans-serif; font-size:14px; background:#fff; color:var(--ink); outline:none;
+  }
+  .field textarea{resize:vertical; min-height:80px;}
+  .pill-choice{display:flex; gap:8px; flex-wrap:wrap;}
+  .pill-choice .pill{padding:8px 15px; border-radius:99px; border:1.5px solid var(--border); font-size:13px; font-weight:600; color:var(--ink-soft); cursor:pointer;}
+  .pill-choice .pill.selected{background:var(--primary); border-color:var(--primary); color:#fff;}
+  .tag-choice{display:flex; gap:8px; flex-wrap:wrap; margin-top:4px;}
+  .tag-choice .tag{padding:7px 13px; border-radius:9px; background:var(--paper); border:1px solid var(--border); font-size:12.5px; color:var(--ink-soft); cursor:pointer;}
+  .tag-choice .tag.selected{background:var(--rose-tint); border-color:var(--rose); color:var(--rose);}
+  .form-actions{display:flex; justify-content:flex-end; gap:10px; margin-top:26px; padding-top:22px; border-top:1px solid var(--border);}
+  .legal-note{display:flex; gap:12px; align-items:flex-start; background:var(--gold-tint); border:1px solid #EBCB8E; border-radius:12px; padding:14px 16px; font-size:12.5px; color:#7A5417; margin-bottom:24px;}
+
+  /* Celula cards */
+  .celula-card{padding:20px 22px;}
+  .celula-card .top{display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:14px;}
+  .celula-card h3{font-size:16px; margin:0 0 2px;}
+  .celula-card .bairro{font-size:12.5px; color:var(--ink-soft);}
+  .celula-meta{display:grid; grid-template-columns:1fr 1fr; gap:10px 16px; margin:16px 0;}
+  .celula-meta .k{font-size:11px; color:var(--ink-soft); text-transform:uppercase; letter-spacing:0.04em; font-family:'IBM Plex Mono',monospace;}
+  .celula-meta .v{font-size:13.5px; font-weight:700; margin-top:2px;}
+  .bar-bg{height:7px; border-radius:99px; background:var(--paper); overflow:hidden;}
+  .bar-fill{height:100%; border-radius:99px; background:var(--teal);}
+
+  /* Kanban (Consolidação) */
+  .kanban{display:grid; grid-template-columns:repeat(4,1fr); gap:16px;}
+  @media (max-width:1100px){.kanban{grid-template-columns:repeat(2,1fr);}}
+  .kanban-col{background:var(--paper); border-radius:var(--radius); padding:14px;}
+  .kanban-col .col-head{display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; padding:0 4px;}
+  .kanban-col .col-head h4{font-size:12.5px; margin:0; text-transform:uppercase; letter-spacing:0.05em; color:var(--ink-soft); font-family:'IBM Plex Mono',monospace;}
+  .kanban-card{background:#fff; border:1px solid var(--border); border-radius:11px; padding:14px; margin-bottom:10px; box-shadow:var(--shadow);}
+  .kanban-card .name{font-weight:700; font-size:13.5px; margin-bottom:6px;}
+  .kanban-card .row{display:flex; justify-content:space-between; font-size:11.5px; color:var(--ink-soft); margin-top:4px;}
+
+  /* Bars chart (frequencia) */
+  .chart-bars{display:flex; align-items:flex-end; gap:14px; height:180px; padding:10px 6px 0;}
+  .chart-bars .bar-group{flex:1; display:flex; flex-direction:column; align-items:center; gap:8px; height:100%; justify-content:flex-end;}
+  .chart-bars .bar{width:100%; max-width:46px; border-radius:6px 6px 0 0;}
+  .chart-bars .bar-label{font-size:11px; color:var(--ink-soft); font-family:'IBM Plex Mono',monospace;}
+
+  .event-card{display:flex; gap:16px; padding:18px 20px;}
+  .event-date{width:56px; text-align:center; flex-shrink:0;}
+  .event-date .day{font-family:'Fraunces',serif; font-size:24px; font-weight:700; color:var(--primary); line-height:1;}
+  .event-date .mon{font-size:10.5px; text-transform:uppercase; color:var(--ink-soft); letter-spacing:0.06em; margin-top:4px;}
+
+  .mockup-flag{
+    position:fixed; bottom:18px; right:18px; z-index:50; max-width:320px;
+    background:var(--ink); color:#fff; font-family:'Manrope',sans-serif;
+    font-size:12px; line-height:1.4; padding:11px 16px; border-radius:14px;
+    display:flex; align-items:flex-start; gap:8px; box-shadow:0 8px 24px rgba(0,0,0,0.25);
+  }
+  .mockup-flag .dot{margin-top:5px;}
+  @media (max-width:640px){ .mockup-flag{display:none;} }
+  .mockup-flag .dot{width:6px;height:6px;border-radius:50%; background:var(--gold);}
+</style>
+</head>
+<body>
+
+<!-- ============ LOGIN ============ -->
+<div id="screen-login">
+  <div class="login-brand ribbon">
+    <div class="brand-mark">
+      <svg class="flame" width="26" height="34" viewBox="0 0 40 52" fill="none"><path d="M20 2C20 2 6 16 6 30C6 40 12 48 20 50C28 48 34 40 34 30C34 24 30 20 27 17C27 24 23 28 19 29C22 24 21 16 20 2Z" fill="#E5484D"/></svg>
+      <div class="wordmark">SARA <span>ENCONTRO COM DEUS</span></div>
+    </div>
+    <div class="lede">
+      <span class="eyebrow">Gestão Eclesiástica · Bairro Cuidos</span>
+      <h1>Cada célula, cada visita, cada vida — em um só lugar.</h1>
+      <p>Sistema interno da Igreja Sara Encontro com Deus para gestão de membros, células, consolidação e frequência. Rodando localmente, pronto para a nuvem quando a igreja quiser.</p>
+    </div>
+    <div class="login-foot">
+      <span>Teresina · PI</span>
+      <span>v1.1.0</span>
+      <span>Servidor local</span>
+    </div>
+  </div>
+  <div class="login-panel">
+    <div class="login-card">
+      <span class="eyebrow-2">Acesso restrito</span>
+      <h2>Entrar no sistema</h2>
+      <div class="field">
+        <label>E-mail institucional</label>
+        <input type="text" id="login-email" placeholder="secretaria@saraencontro.org.br">
+      </div>
+      <div class="field">
+        <label>Senha</label>
+        <input type="password" id="login-senha" placeholder="••••••••••">
+      </div>
+      <div id="login-erro" style="display:none; background:var(--rose-tint); color:var(--rose); font-size:12.5px; font-weight:600; padding:10px 12px; border-radius:9px; margin-bottom:14px;"></div>
+      <button class="btn btn-primary" id="login-btn" onclick="fazerLogin()">Entrar</button>
+      <div class="login-help">Esqueceu a senha? <a href="#">Fale com o administrador</a></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ APP SHELL ============ -->
+<div id="app">
+  <aside class="sidebar">
+    <div class="brand-mark">
+      <svg class="flame" width="20" height="26" viewBox="0 0 40 52" fill="none"><path d="M20 2C20 2 6 16 6 30C6 40 12 48 20 50C28 48 34 40 34 30C34 24 30 20 27 17C27 24 23 28 19 29C22 24 21 16 20 2Z" fill="#E5484D"/></svg>
+      <div class="wordmark">SARA <span>ENCONTRO COM DEUS</span></div>
+    </div>
+
+    <div class="nav-group-label">Visão geral</div>
+    <div class="nav-item active" data-target="dashboard"><span class="ic">🏠</span> Painel</div>
+
+    <div class="nav-group-label">Pessoas</div>
+    <div class="nav-item" data-target="membros"><span class="ic">👥</span> Membros</div>
+    <div class="nav-item" data-target="parceiros"><span class="ic">🤝</span> Parceiros de Deus</div>
+
+    <div class="nav-group-label">Células</div>
+    <div class="nav-item" data-target="celulas"><span class="ic">🌱</span> Células</div>
+    <div class="nav-item" data-target="celula12"><span class="ic">✝️</span> Célula de 12</div>
+    <div class="nav-item" data-target="raiox"><span class="ic">📊</span> Raio X mensal</div>
+
+    <div class="nav-group-label">Consolidação</div>
+    <div class="nav-item" data-target="novoconvertido"><span class="ic">📝</span> Ficha de conversão</div>
+    <div class="nav-item" data-target="consolidacao"><span class="ic">💬</span> Acompanhamento</div>
+
+    <div class="nav-group-label">Institucional</div>
+    <div class="nav-item" data-target="instituto"><span class="ic">🎓</span> Instituto de Vencedores</div>
+    <div class="nav-item" data-target="cultos"><span class="ic">🙏</span> Frequência de cultos</div>
+    <div class="nav-item" data-target="eventos"><span class="ic">📅</span> Eventos</div>
+
+    <div class="sidebar-foot" style="align-items:center;">
+      <div class="avatar" id="sidebar-avatar">--</div>
+      <div style="flex:1;">
+        <div style="font-weight:700; color:#fff;" id="sidebar-nome">—</div>
+        <div style="font-size:11.5px;" id="sidebar-perfil">—</div>
+      </div>
+      <span class="icon-link" title="Sair" style="background:transparent; border-color:rgba(255,255,255,0.25); color:rgba(255,255,255,0.7);" onclick="logout()">⏻</span>
+    </div>
+  </aside>
+
+  <main class="main">
+
+    <!-- ===== DASHBOARD ===== -->
+    <div class="view active" id="view-dashboard">
+      <div class="topbar">
+        <div>
+          <h1>Painel geral</h1>
+          <div class="sub">Domingo, 30 de agosto de 2026 · Igreja Sara Encontro com Deus, Bairro Cuidos</div>
+        </div>
+        <div class="topbar-actions">
+          <button class="btn btn-ghost btn-sm">Exportar relatório</button>
+          <button class="btn btn-primary btn-sm">+ Novo lançamento</button>
+        </div>
+      </div>
+      <div class="content">
+        <div class="grid cols-4">
+          <div class="card kpi">
+            <div class="icon-bar" style="background:var(--primary-tint);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4B2E82" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg></div>
+            <div class="value" id="kpi-membros">—</div>
+            <div class="label">Membros cadastrados</div>
+          </div>
+          <div class="card kpi">
+            <div class="icon-bar" style="background:var(--teal-tint);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2E8C79" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18"/></svg></div>
+            <div class="value" id="kpi-celulas">—</div>
+            <div class="label">Células ativas</div>
+            <span class="delta flat" id="kpi-celulas-mult"></span>
+          </div>
+          <div class="card kpi">
+            <div class="icon-bar" style="background:var(--gold-tint);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8A5A16" stroke-width="2"><path d="M12 2 3 7l9 5 9-5-9-5Z"/><path d="M3 12l9 5 9-5"/></svg></div>
+            <div class="value" id="kpi-culto">—</div>
+            <div class="label" id="kpi-culto-label">Presença · último culto</div>
+          </div>
+          <div class="card kpi">
+            <div class="icon-bar" style="background:var(--rose-tint);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#CF4677" stroke-width="2"><path d="M12 21s-7-4.35-9.5-8.5C.9 9.3 2.6 6 6 6c2 0 3.3 1 4 2.2C10.7 7 12 6 14 6c3.4 0 5.1 3.3 3.5 6.5C19.5 16.65 12 21 12 21Z"/></svg></div>
+            <div class="value" id="kpi-consolidacao">—</div>
+            <div class="label">Em consolidação</div>
+          </div>
+        </div>
+
+        <div class="section-title">
+          <div>
+            <span class="eyebrow">Últimos cultos lançados</span>
+            <h2>Frequência aos cultos oficiais</h2>
+          </div>
+        </div>
+        <div class="grid cols-3">
+          <div class="card" style="grid-column:span 2; padding:22px 26px;">
+            <div class="chart-bars" id="dashboard-cultos-chart">
+              <div style="color:var(--ink-soft); font-size:13px;">Carregando…</div>
+            </div>
+          </div>
+          <div class="card" style="padding:22px 26px;">
+            <div class="eyebrow" style="display:block; margin-bottom:14px;">Instituto de Vencedores</div>
+            <div style="display:flex; flex-direction:column; gap:14px;" id="dashboard-instituto">
+              <div style="color:var(--ink-soft); font-size:13px;">Carregando…</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-title">
+          <div><span class="eyebrow">Atividade recente</span><h2>Últimos registros da secretaria</h2></div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <tr><th>Evento</th><th>Célula / Origem</th><th>Responsável</th><th>Quando</th></tr>
+            <tr><td>Ficha de novo convertido cadastrada</td><td>Célula Videira — Bairro Cuidos</td><td>Marta Nunes</td><td class="mono">hoje, 09:40</td></tr>
+            <tr><td>Frequência de célula lançada</td><td>Célula Oliveiras</td><td>João Pedro</td><td class="mono">ontem, 20:15</td></tr>
+            <tr><td>Aprovação registrada — Instituto de Vencedores</td><td>Turma Módulo 1</td><td>Secretaria</td><td class="mono">ontem, 14:02</td></tr>
+            <tr><td>Novo evento institucional criado</td><td>Vigília de Setembro</td><td>Pr. Enoque</td><td class="mono">2 dias atrás</td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== MEMBROS ===== -->
+    <div class="view" id="view-membros">
+      <div class="topbar">
+        <div><h1>Membros</h1><div class="sub">Cadastro, alteração e histórico dos membros da igreja</div></div>
+        <div class="topbar-actions"><button class="btn btn-primary btn-sm" onclick="novoMembro()">+ Novo membro</button></div>
+      </div>
+      <div class="content">
+        <div class="table-wrap">
+          <div class="table-toolbar">
+            <div class="search"><input id="membros-busca" oninput="carregarMembros()" placeholder="🔍 Buscar por nome ou bairro" style="border:none; outline:none; background:transparent; width:100%; font-family:inherit; font-size:13px; color:inherit;"></div>
+            <div style="display:flex; gap:8px;">
+              <span class="badge grey" id="membros-total">Todos · —</span>
+            </div>
+          </div>
+          <table style="margin-top:10px;">
+            <tr><th>Membro</th><th>Bairro</th><th>Célula</th><th>Status</th><th>Desde</th><th></th></tr>
+            <tbody id="membros-tbody">
+              <tr><td colspan="6" style="color:var(--ink-soft);">Carregando…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== PARCEIROS ===== -->
+    <div class="view" id="view-parceiros">
+      <div class="topbar">
+        <div><h1>Parceiros de Deus</h1><div class="sub">Mapeamento qualitativo — RF08</div></div>
+        <div class="topbar-actions"><button class="btn btn-primary btn-sm" onclick="classificarParceiro()">+ Classificar membro</button></div>
+      </div>
+      <div class="content">
+        <div class="legal-note">
+          ⚠️ <div><strong>Sem valores monetários.</strong> Este módulo registra apenas quem é dizimista, ofertante ou parceiro de Deus — nenhum valor em dinheiro, PIX, cartão ou boleto é processado ou armazenado pelo sistema.</div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <tr><th>Nome</th><th>Célula</th><th>Classificação</th><th>Desde</th></tr>
+            <tbody id="parceiros-tbody">
+              <tr><td colspan="4" style="color:var(--ink-soft);">Carregando…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== CÉLULAS ===== -->
+    <div class="view" id="view-celulas">
+      <div class="topbar">
+        <div><h1>Células</h1><div class="sub">Multiplicação, liderança e frequência semanal — RF02</div></div>
+        <div class="topbar-actions"><button class="btn btn-primary btn-sm" onclick="novaCelula()">+ Nova célula</button></div>
+      </div>
+      <div class="content">
+        <div class="grid cols-3" id="celulas-grid">
+          <div style="color:var(--ink-soft);">Carregando…</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== CÉLULA DE 12 ===== -->
+    <div class="view" id="view-celula12">
+      <div class="topbar">
+        <div><h1>Célula de 12</h1><div class="sub">Reuniões quinzenais da alta liderança — RF03</div></div>
+        <div class="topbar-actions"><button class="btn btn-primary btn-sm">+ Registrar encontro</button></div>
+      </div>
+      <div class="content">
+        <div class="legal-note">⚠️ <div><strong>Ainda com dados de exemplo.</strong> A API já tem os endpoints de <span class="mono">/api/celula-doze/...</span>, mas esta tela é o próximo passo a conectar.</div></div>
+        <div class="grid cols-3">
+          <div class="card kpi"><div class="value">12</div><div class="label">Discípulos G-12 do pastor</div></div>
+          <div class="card kpi"><div class="value">9</div><div class="label">Presentes no último encontro</div></div>
+          <div class="card kpi"><div class="value">14 set</div><div class="label">Próximo encontro quinzenal</div></div>
+        </div>
+        <div class="section-title"><div><span class="eyebrow">Discipulado</span><h2>Discípulos G-12 · Pr. Enoque</h2></div></div>
+        <div class="table-wrap">
+          <table>
+            <tr><th>Discípulo</th><th>G-144 de</th><th>Presença 14/08</th><th>Presença 28/08</th></tr>
+            <tr><td><div class="person"><div class="pic">JP</div><div class="name">João Pedro Alves</div></div></td><td>Renata Sousa</td><td><span class="badge teal">Presente</span></td><td><span class="badge teal">Presente</span></td></tr>
+            <tr><td><div class="person"><div class="pic">EC</div><div class="name">Edvan Costa</div></div></td><td>Luana Borges</td><td><span class="badge teal">Presente</span></td><td><span class="badge rose">Ausente</span></td></tr>
+            <tr><td><div class="person"><div class="pic">MN</div><div class="name">Marta Nunes</div></div></td><td>João Pedro Alves</td><td><span class="badge rose">Ausente</span></td><td><span class="badge teal">Presente</span></td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== RAIO X ===== -->
+    <div class="view" id="view-raiox">
+      <div class="topbar">
+        <div><h1>Raio X — Relatório mensal</h1><div class="sub">Consolidado por célula, mês de referência</div></div>
+        <div class="topbar-actions"><button class="btn btn-ghost btn-sm">Baixar PDF</button><button class="btn btn-primary btn-sm">Gerar relatório</button></div>
+      </div>
+      <div class="content">
+        <div class="legal-note">⚠️ <div><strong>Ainda com dados de exemplo.</strong> A API já expõe <span class="mono">GET /api/raiox/:celulaId</span> (view <span class="mono">vw_raiox_mensal</span>); falta o seletor de célula/mês aqui na tela.</div></div>
+        <div class="card" style="padding:24px 26px;">
+          <div class="grid cols-4" style="margin-bottom:22px;">
+            <div><div class="mono" style="font-size:11px; color:var(--ink-soft); text-transform:uppercase;">Célula</div><div style="font-weight:700;">Videira</div></div>
+            <div><div class="mono" style="font-size:11px; color:var(--ink-soft); text-transform:uppercase;">Líder</div><div style="font-weight:700;">João Pedro Alves</div></div>
+            <div><div class="mono" style="font-size:11px; color:var(--ink-soft); text-transform:uppercase;">Mês / Ano</div><div style="font-weight:700;">Agosto / 2026</div></div>
+            <div><div class="mono" style="font-size:11px; color:var(--ink-soft); text-transform:uppercase;">Total membros</div><div style="font-weight:700;">14</div></div>
+          </div>
+          <table>
+            <tr><th>Nº</th><th>Integrante</th><th>Telefone</th><th>Presenças no mês</th><th>Consolidação</th><th>Inst. Vencedores</th></tr>
+            <tr><td class="mono">01</td><td>Ana Karla Rocha</td><td class="mono">(86) 99911-2233</td><td><span class="badge teal">4/4</span></td><td><span class="badge grey">—</span></td><td><span class="badge violet">M1</span></td></tr>
+            <tr><td class="mono">02</td><td>Pedro Henrique Dias</td><td class="mono">(86) 99822-1010</td><td><span class="badge gold">3/4</span></td><td><span class="badge teal">Pós-revisão</span></td><td><span class="badge grey">—</span></td></tr>
+            <tr><td class="mono">03</td><td>Vitória Menezes</td><td class="mono">(86) 99733-4545</td><td><span class="badge teal">4/4</span></td><td><span class="badge grey">—</span></td><td><span class="badge violet">M2</span></td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== FICHA NOVO CONVERTIDO ===== -->
+    <div class="view" id="view-novoconvertido">
+      <div class="topbar">
+        <div><h1>Ficha de novo convertido</h1><div class="sub">Triagem digital — RF04</div></div>
+        <div class="topbar-actions"><button class="btn btn-ghost btn-sm">Cancelar</button></div>
+      </div>
+      <div class="content">
+        <div class="form-card">
+          <div class="pill-choice" id="ficha-tipo" style="margin-bottom:22px;">
+            <div class="pill selected" data-valor="novo_convertido">Novo convertido</div>
+            <div class="pill" data-valor="reconciliacao">Reconciliação</div>
+            <div class="pill" data-valor="visitante">Visitante</div>
+          </div>
+          <div class="form-row">
+            <div class="field"><label>Nome completo</label><input id="ficha-nome" placeholder="Nome e sobrenome"></div>
+            <div class="field"><label>Data de nascimento</label><input id="ficha-nascimento" type="date"></div>
+          </div>
+          <div class="form-row single"><div class="field"><label>Endereço</label><input id="ficha-endereco" placeholder="Rua, número"></div></div>
+          <div class="form-row">
+            <div class="field"><label>Bairro</label><input id="ficha-bairro" placeholder="Ex: Cuidos" value="Cuidos"></div>
+            <div class="field"><label>WhatsApp</label><input id="ficha-whatsapp" placeholder="(86) 9####-####"></div>
+          </div>
+          <div class="form-row">
+            <div class="field"><label>Participa de alguma célula?</label>
+              <div class="pill-choice" id="ficha-participa"><div class="pill selected" data-valor="sim">Sim</div><div class="pill" data-valor="nao">Não</div></div>
+            </div>
+            <div class="field"><label>Nome do líder da célula</label><input id="ficha-lider" placeholder="Ex: João Pedro Alves"></div>
+          </div>
+          <div class="form-row single"><div class="field"><label>Veio acompanhado por alguém?</label><input id="ficha-acompanhado" placeholder="Nome de quem convidou"></div></div>
+          <div class="form-row single">
+            <div class="field">
+              <label>Necessidade de oração</label>
+              <div class="tag-choice" id="ficha-necessidades">
+                <div class="tag selected">Espiritual</div><div class="tag">Saúde</div><div class="tag">Emocional</div><div class="tag">Financeiro</div><div class="tag">Mental</div>
+              </div>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="field"><label>Será acompanhado pelo líder</label><input id="ficha-responsavel" placeholder="Nome do responsável"></div>
+            <div class="field"><label>Data da ficha</label><input id="ficha-data" type="date"></div>
+          </div>
+          <div class="form-row single"><div class="field"><label>Observação</label><textarea id="ficha-observacao" placeholder="Observações adicionais da secretaria ou do líder"></textarea></div></div>
+          <div id="ficha-msg" style="display:none; font-size:13px; font-weight:600; margin-bottom:10px;"></div>
+          <div class="form-actions">
+            <button class="btn btn-ghost" onclick="limparFichaConversao()">Limpar</button>
+            <button class="btn btn-primary" onclick="salvarFichaConversao()">Concluir cadastro</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== CONSOLIDAÇÃO ===== -->
+    <div class="view" id="view-consolidacao">
+      <div class="topbar">
+        <div><h1>Acompanhamento de consolidação</h1><div class="sub">1 visita semanal, vínculo com a célula de origem — RF06</div></div>
+      </div>
+      <div class="content">
+        <div class="kanban" id="consolidacao-kanban">
+          <div style="color:var(--ink-soft);">Carregando…</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== INSTITUTO DE VENCEDORES ===== -->
+    <div class="view" id="view-instituto">
+      <div class="topbar">
+        <div><h1>Instituto de Vencedores</h1><div class="sub">Turmas, frequência e aprovação — RF05</div></div>
+        <div class="topbar-actions"><button class="btn btn-primary btn-sm" onclick="novaTurma()">+ Nova turma</button></div>
+      </div>
+      <div class="content">
+        <div class="table-wrap">
+          <table>
+            <tr><th>Turma</th><th>Horário</th><th>Matriculados</th><th>Frequência</th><th>Status</th></tr>
+            <tbody id="instituto-tbody">
+              <tr><td colspan="5" style="color:var(--ink-soft);">Carregando…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== FREQUÊNCIA DE CULTOS ===== -->
+    <div class="view" id="view-cultos">
+      <div class="topbar">
+        <div><h1>Frequência de cultos</h1><div class="sub">Lançamento quantitativo — terça, sábado e domingo — RF07</div></div>
+      </div>
+      <div class="content">
+        <div class="grid cols-2">
+          <div class="form-card" style="max-width:none;">
+            <div class="form-row">
+              <div class="field"><label>Culto</label>
+                <div class="pill-choice" id="culto-tipo"><div class="pill" data-valor="terca">Terça</div><div class="pill" data-valor="sabado">Sábado</div><div class="pill selected" data-valor="domingo">Domingo</div></div>
+              </div>
+              <div class="field"><label>Data</label><input id="culto-data" type="date"></div>
+            </div>
+            <div class="form-row single"><div class="field"><label>Quantitativo de presentes</label><input id="culto-quantitativo" type="number" placeholder="Ex: 246"></div></div>
+            <div id="culto-msg" style="display:none; font-size:13px; font-weight:600; margin-bottom:10px;"></div>
+            <div class="form-actions"><button class="btn btn-primary" onclick="registrarCulto()">Registrar</button></div>
+          </div>
+          <div class="card" style="padding:22px 26px;">
+            <div class="eyebrow" style="display:block; margin-bottom:14px;">Histórico recente</div>
+            <div class="chart-bars" style="height:150px;" id="cultos-chart">
+              <div style="color:var(--ink-soft); font-size:13px;">Carregando…</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== EVENTOS ===== -->
+    <div class="view" id="view-eventos">
+      <div class="topbar">
+        <div><h1>Eventos institucionais</h1><div class="sub">Calendário da igreja — RF09</div></div>
+        <div class="topbar-actions"><button class="btn btn-primary btn-sm" onclick="novoEvento()">+ Novo evento</button></div>
+      </div>
+      <div class="content">
+        <div class="grid cols-2" id="eventos-grid">
+          <div style="color:var(--ink-soft);">Carregando…</div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<div class="mockup-flag"><span class="dot"></span> Conectado à API em <span id="flag-api-base" class="mono"></span> — edite API_BASE no &lt;script&gt; se o endereço for outro</div>
+
+<script>
+  // ==========================================================================
+  // CONFIGURAÇÃO — troque pelo endereço real da sua API em produção
+  // ==========================================================================
+  const API_BASE = 'http://localhost:3000/api';
+  document.getElementById('flag-api-base').textContent = API_BASE;
+
+  // ==========================================================================
+  // ESTADO / AUTENTICAÇÃO
+  // ==========================================================================
+  function getToken(){ return localStorage.getItem('sara_token'); }
+  function getUsuario(){
+    try { return JSON.parse(localStorage.getItem('sara_usuario') || 'null'); }
+    catch(e){ return null; }
+  }
+
+  async function apiFetch(caminho, opcoes){
+    opcoes = opcoes || {};
+    opcoes.headers = Object.assign({ 'Content-Type': 'application/json' }, opcoes.headers || {});
+    var token = getToken();
+    if (token) opcoes.headers['Authorization'] = 'Bearer ' + token;
+
+    var resposta = await fetch(API_BASE + caminho, opcoes);
+    if (resposta.status === 401) {
+      logout();
+      throw new Error('Sessão expirada. Faça login novamente.');
+    }
+    var dados = null;
+    try { dados = await resposta.json(); } catch(e) { /* corpo vazio, ex: DELETE 204 */ }
+    if (!resposta.ok) {
+      throw new Error((dados && dados.erro) || ('Erro ' + resposta.status));
+    }
+    return dados;
+  }
+
+  function logout(){
+    localStorage.removeItem('sara_token');
+    localStorage.removeItem('sara_usuario');
+    document.getElementById('app').classList.remove('active');
+    document.getElementById('screen-login').style.display = 'grid';
+  }
+
+  async function fazerLogin(){
+    var email = document.getElementById('login-email').value.trim();
+    var senha = document.getElementById('login-senha').value;
+    var erroBox = document.getElementById('login-erro');
+    var btn = document.getElementById('login-btn');
+    erroBox.style.display = 'none';
+
+    if (!email || !senha) {
+      erroBox.textContent = 'Informe e-mail e senha.';
+      erroBox.style.display = 'block';
+      return;
+    }
+    btn.textContent = 'Entrando…';
+    btn.disabled = true;
+    try {
+      var resp = await fetch(API_BASE + '/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email, senha: senha })
+      });
+      var dados = await resp.json();
+      if (!resp.ok) throw new Error(dados.erro || 'Não foi possível entrar');
+
+      localStorage.setItem('sara_token', dados.token);
+      localStorage.setItem('sara_usuario', JSON.stringify(dados.usuario));
+      enterApp();
+    } catch (err) {
+      erroBox.textContent = err.message.includes('fetch')
+        ? 'Não foi possível conectar à API. Verifique se ela está rodando em ' + API_BASE + '.'
+        : err.message;
+      erroBox.style.display = 'block';
+    } finally {
+      btn.textContent = 'Entrar';
+      btn.disabled = false;
+    }
+  }
+
+  function enterApp(){
+    var usuario = getUsuario();
+    document.getElementById('screen-login').style.display = 'none';
+    document.getElementById('app').classList.add('active');
+    if (usuario) {
+      document.getElementById('sidebar-nome').textContent = usuario.nome;
+      document.getElementById('sidebar-perfil').textContent = 'Perfil: ' + usuario.perfil;
+      document.getElementById('sidebar-avatar').textContent = usuario.nome.split(' ').slice(0,2).map(function(p){ return p[0]; }).join('').toUpperCase();
+    }
+    carregarDashboard();
+  }
+
+  // Se já existir um token salvo, entra direto sem pedir login de novo
+  if (getToken()) enterApp();
+
+  // ==========================================================================
+  // NAVEGAÇÃO — carrega os dados da tela sob demanda ao clicar no menu
+  // ==========================================================================
+  var carregadores = {
+    dashboard: carregarDashboard,
+    membros: carregarMembros,
+    parceiros: carregarParceiros,
+    celulas: carregarCelulas,
+    consolidacao: carregarConsolidacao,
+    instituto: carregarInstituto,
+    cultos: carregarCultos,
+    eventos: carregarEventos,
+  };
+
+  document.querySelectorAll('.nav-item').forEach(function(item){
+    item.addEventListener('click', function(){
+      document.querySelectorAll('.nav-item').forEach(function(i){ i.classList.remove('active'); });
+      item.classList.add('active');
+      var target = item.getAttribute('data-target');
+      document.querySelectorAll('.view').forEach(function(v){ v.classList.remove('active'); });
+      document.getElementById('view-' + target).classList.add('active');
+      document.querySelector('.content') && window.scrollTo(0,0);
+      if (carregadores[target]) carregadores[target]();
+    });
+  });
+
+  // pill / tag interatividade visual (mantido do mockup original)
+  document.querySelectorAll('.pill-choice').forEach(function(group){
+    group.querySelectorAll('.pill').forEach(function(p){
+      p.addEventListener('click', function(){
+        group.querySelectorAll('.pill').forEach(function(x){ x.classList.remove('selected'); });
+        p.classList.add('selected');
+      });
+    });
+  });
+  document.querySelectorAll('.tag').forEach(function(t){
+    t.addEventListener('click', function(){ t.classList.toggle('selected'); });
+  });
+
+  // ==========================================================================
+  // Utilitários de formatação
+  // ==========================================================================
+  function iniciais(nome){
+    return (nome || '?').split(' ').filter(Boolean).slice(0,2).map(function(p){ return p[0]; }).join('').toUpperCase();
+  }
+  function formatarData(iso){
+    if (!iso) return '—';
+    var d = new Date(iso + (iso.length === 10 ? 'T00:00:00' : ''));
+    if (isNaN(d)) return iso;
+    return d.toLocaleDateString('pt-BR', { day:'2-digit', month:'short', year:'numeric' }).replace('.', '');
+  }
+  function badgeStatusMembro(status){
+    var mapa = {
+      membro: ['teal','Membro'], novo_convertido: ['gold','Novo convertido'],
+      reconciliacao: ['gold','Reconciliação'], visitante: ['rose','Visitante'],
+      parceiro_de_deus: ['violet','Parceiro de Deus']
+    };
+    var info = mapa[status] || ['grey', status || '—'];
+    return '<span class="badge ' + info[0] + '">' + info[1] + '</span>';
+  }
+
+  // ==========================================================================
+  // PAINEL (DASHBOARD)
+  // ==========================================================================
+  async function carregarDashboard(){
+    try {
+      var resumo = await apiFetch('/dashboard/resumo');
+      document.getElementById('kpi-membros').textContent = resumo.membros_cadastrados;
+      document.getElementById('kpi-celulas').textContent = resumo.celulas_ativas;
+      document.getElementById('kpi-celulas-mult').textContent = resumo.celulas_em_multiplicacao + ' em multiplicação';
+      document.getElementById('kpi-consolidacao').textContent = resumo.em_consolidacao_total;
+      if (resumo.ultimo_culto) {
+        document.getElementById('kpi-culto').textContent = resumo.ultimo_culto.quantitativo_presentes;
+        document.getElementById('kpi-culto-label').textContent = 'Presença · ' + resumo.ultimo_culto.tipo_culto + ' ' + formatarData(resumo.ultimo_culto.data_culto);
+      } else {
+        document.getElementById('kpi-culto').textContent = '—';
+      }
+    } catch (err) { console.error(err); }
+
+    try {
+      var cultos = await apiFetch('/cultos?limite=6');
+      var maior = Math.max.apply(null, cultos.map(function(c){ return c.quantitativo_presentes; }).concat([1]));
+      var html = cultos.map(function(c){
+        var altura = Math.round((c.quantitativo_presentes / maior) * 100);
+        return '<div class="bar-group"><div class="bar" style="height:' + altura + '%; background:var(--primary);"></div>' +
+               '<div class="bar-label">' + formatarData(c.data_culto) + '</div></div>';
+      }).join('');
+      document.getElementById('dashboard-cultos-chart').innerHTML = html || '<div style="color:var(--ink-soft); font-size:13px;">Nenhum culto lançado ainda.</div>';
+    } catch (err) { console.error(err); }
+
+    try {
+      var turmas = await apiFetch('/instituto/turmas');
+      var html2 = turmas.map(function(t){
+        return '<div><div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:6px;"><span>' + t.nome + '</span>' +
+               '<span class="mono" style="font-size:12px; color:var(--ink-soft);">' + t.frequencia_percentual + '%</span></div>' +
+               '<div class="bar-bg"><div class="bar-fill" style="width:' + t.frequencia_percentual + '%;"></div></div></div>';
+      }).join('');
+      document.getElementById('dashboard-instituto').innerHTML = html2 || '<div style="color:var(--ink-soft); font-size:13px;">Nenhuma turma cadastrada.</div>';
+    } catch (err) { console.error(err); }
+  }
+
+  // ==========================================================================
+  // MEMBROS
+  // ==========================================================================
+  async function carregarMembros(){
+    var tbody = document.getElementById('membros-tbody');
+    var busca = document.getElementById('membros-busca').value.trim();
+    try {
+      var membros = await apiFetch('/membros' + (busca ? '?busca=' + encodeURIComponent(busca) : ''));
+      document.getElementById('membros-total').textContent = 'Todos · ' + membros.length;
+      tbody.innerHTML = membros.map(function(m){
+        return '<tr>' +
+          '<td><div class="person"><div class="pic">' + iniciais(m.nome) + '</div><div><div class="name">' + m.nome + '</div><div class="meta">' + (m.whatsapp || '—') + '</div></div></div></td>' +
+          '<td>' + (m.bairro || '—') + '</td>' +
+          '<td>' + (m.celula_nome || '— sem célula —') + '</td>' +
+          '<td>' + badgeStatusMembro(m.status) + '</td>' +
+          '<td class="mono">' + formatarData(m.membro_desde || m.criado_em) + '</td>' +
+          '<td><span class="icon-link" onclick="excluirMembro(\'' + m.id + '\')">🗑</span></td>' +
+          '</tr>';
+      }).join('') || '<tr><td colspan="6" style="color:var(--ink-soft);">Nenhum membro encontrado.</td></tr>';
+    } catch (err) {
+      tbody.innerHTML = '<tr><td colspan="6" style="color:var(--rose);">' + err.message + '</td></tr>';
+    }
+  }
+
+  async function novoMembro(){
+    var nome = prompt('Nome completo do membro:');
+    if (!nome) return;
+    var bairro = prompt('Bairro:', 'Cuidos') || null;
+    var whatsapp = prompt('WhatsApp (opcional):') || null;
+    var status = prompt('Status (visitante, novo_convertido, membro, reconciliacao):', 'visitante') || 'visitante';
+    try {
+      await apiFetch('/membros', { method: 'POST', body: JSON.stringify({ nome: nome, bairro: bairro, whatsapp: whatsapp, status: status }) });
+      carregarMembros();
+    } catch (err) { alert('Erro ao criar membro: ' + err.message); }
+  }
+
+  async function excluirMembro(id){
+    if (!confirm('Excluir este membro?')) return;
+    try { await apiFetch('/membros/' + id, { method: 'DELETE' }); carregarMembros(); }
+    catch (err) { alert('Erro ao excluir: ' + err.message); }
+  }
+
+  // ==========================================================================
+  // PARCEIROS DE DEUS
+  // ==========================================================================
+  async function carregarParceiros(){
+    var tbody = document.getElementById('parceiros-tbody');
+    try {
+      var lista = await apiFetch('/parceiros');
+      var mapaClass = { dizimista: ['gold','Dizimista'], ofertante: ['teal','Ofertante'], parceiro_de_deus: ['violet','Parceiro de Deus'] };
+      tbody.innerHTML = lista.map(function(p){
+        var info = mapaClass[p.classificacao] || ['grey', p.classificacao];
+        return '<tr><td><div class="person"><div class="pic">' + iniciais(p.membro_nome) + '</div><div class="name">' + p.membro_nome + '</div></div></td>' +
+               '<td>' + (p.celula_nome || '—') + '</td><td><span class="badge ' + info[0] + '">' + info[1] + '</span></td>' +
+               '<td class="mono">' + formatarData(p.desde) + '</td></tr>';
+      }).join('') || '<tr><td colspan="4" style="color:var(--ink-soft);">Nenhum parceiro classificado ainda.</td></tr>';
+    } catch (err) {
+      tbody.innerHTML = '<tr><td colspan="4" style="color:var(--rose);">' + err.message + '</td></tr>';
+    }
+  }
+
+  async function classificarParceiro(){
+    var membro_id = prompt('ID do membro (veja em Membros):');
+    if (!membro_id) return;
+    var classificacao = prompt('Classificação (dizimista, ofertante, parceiro_de_deus):', 'dizimista');
+    if (!classificacao) return;
+    try {
+      await apiFetch('/parceiros', { method: 'POST', body: JSON.stringify({ membro_id: membro_id, classificacao: classificacao }) });
+      carregarParceiros();
+    } catch (err) { alert('Erro ao classificar: ' + err.message); }
+  }
+
+  // ==========================================================================
+  // CÉLULAS
+  // ==========================================================================
+  async function carregarCelulas(){
+    var grid = document.getElementById('celulas-grid');
+    try {
+      var celulas = await apiFetch('/celulas');
+      var mapaStatus = { ativa: ['teal','Ativa'], em_multiplicacao: ['gold','Em multiplicação'], inativa: ['grey','Inativa'] };
+      grid.innerHTML = celulas.map(function(c){
+        var info = mapaStatus[c.status] || ['grey', c.status];
+        return '<div class="card celula-card">' +
+          '<div class="top"><div><h3>' + c.nome + '</h3><div class="bairro">' + (c.bairro || '—') + ' · ' + (c.dia_semana || '') + (c.horario ? ', ' + c.horario : '') + '</div></div>' +
+          '<span class="badge ' + info[0] + '">' + info[1] + '</span></div>' +
+          '<div class="celula-meta">' +
+          '<div><div class="k">Líder</div><div class="v">' + (c.lider_nome || '—') + '</div></div>' +
+          '<div><div class="k">Co-líder</div><div class="v">' + (c.co_lider_nome || '—') + '</div></div>' +
+          '<div><div class="k">Anfitrião</div><div class="v">' + (c.anfitriao || '—') + '</div></div>' +
+          '<div><div class="k">Membros</div><div class="v">' + c.total_membros + '</div></div>' +
+          '</div></div>';
+      }).join('') || '<div style="color:var(--ink-soft);">Nenhuma célula cadastrada.</div>';
+    } catch (err) {
+      grid.innerHTML = '<div style="color:var(--rose);">' + err.message + '</div>';
+    }
+  }
+
+  async function novaCelula(){
+    var nome = prompt('Nome da célula:');
+    if (!nome) return;
+    var bairro = prompt('Bairro:') || null;
+    var dia_semana = prompt('Dia da semana (ex: Terça):') || null;
+    try {
+      await apiFetch('/celulas', { method: 'POST', body: JSON.stringify({ nome: nome, bairro: bairro, dia_semana: dia_semana }) });
+      carregarCelulas();
+    } catch (err) { alert('Erro ao criar célula: ' + err.message); }
+  }
+
+  // ==========================================================================
+  // FICHA DE CONVERSÃO
+  // ==========================================================================
+  function valorSelecionado(grupoId){
+    var el = document.querySelector('#' + grupoId + ' .pill.selected');
+    return el ? el.getAttribute('data-valor') : null;
+  }
+
+  async function salvarFichaConversao(){
+    var msg = document.getElementById('ficha-msg');
+    msg.style.display = 'none';
+    var nome = document.getElementById('ficha-nome').value.trim();
+    if (!nome) { msg.textContent = 'Informe o nome completo.'; msg.style.color = 'var(--rose)'; msg.style.display = 'block'; return; }
+
+    var necessidades = Array.prototype.slice.call(document.querySelectorAll('#ficha-necessidades .tag.selected'))
+      .map(function(t){ return t.textContent.trim(); });
+
+    var corpo = {
+      tipo: valorSelecionado('ficha-tipo') || 'novo_convertido',
+      nome_completo: nome,
+      data_nascimento: document.getElementById('ficha-nascimento').value || null,
+      endereco: document.getElementById('ficha-endereco').value || null,
+      bairro: document.getElementById('ficha-bairro').value || null,
+      whatsapp: document.getElementById('ficha-whatsapp').value || null,
+      participa_celula: valorSelecionado('ficha-participa') === 'sim',
+      nome_lider_celula: document.getElementById('ficha-lider').value || null,
+      veio_acompanhado_por: document.getElementById('ficha-acompanhado').value || null,
+      necessidades: necessidades,
+      sera_acompanhado_por: document.getElementById('ficha-responsavel').value || null,
+      data_ficha: document.getElementById('ficha-data').value || null,
+      observacao: document.getElementById('ficha-observacao').value || null,
+    };
+
+    try {
+      await apiFetch('/fichas-conversao', { method: 'POST', body: JSON.stringify(corpo) });
+      msg.textContent = 'Ficha salva e enviada para a consolidação!';
+      msg.style.color = 'var(--teal)';
+      msg.style.display = 'block';
+      limparFichaConversao();
+    } catch (err) {
+      msg.textContent = 'Erro ao salvar: ' + err.message;
+      msg.style.color = 'var(--rose)';
+      msg.style.display = 'block';
+    }
+  }
+
+  function limparFichaConversao(){
+    ['ficha-nome','ficha-nascimento','ficha-endereco','ficha-whatsapp','ficha-lider',
+     'ficha-acompanhado','ficha-responsavel','ficha-data','ficha-observacao'].forEach(function(id){
+      document.getElementById(id).value = '';
+    });
+    document.getElementById('ficha-bairro').value = 'Cuidos';
+  }
+
+  // ==========================================================================
+  // CONSOLIDAÇÃO (KANBAN)
+  // ==========================================================================
+  var ETAPAS = [
+    { chave: 'contato_inicial', titulo: 'Contato inicial', proxima: 'primeira_visita' },
+    { chave: 'primeira_visita', titulo: '1ª visita', proxima: 'em_acompanhamento' },
+    { chave: 'em_acompanhamento', titulo: 'Em acompanhamento', proxima: 'concluido' },
+    { chave: 'concluido', titulo: 'Concluído → Membro', proxima: null },
+  ];
+
+  async function carregarConsolidacao(){
+    var container = document.getElementById('consolidacao-kanban');
+    try {
+      var kanban = await apiFetch('/consolidacao');
+      container.innerHTML = ETAPAS.map(function(etapa){
+        var itens = kanban[etapa.chave] || [];
+        var cards = itens.map(function(item){
+          var botao = etapa.proxima
+            ? '<button class="btn btn-ghost btn-sm" style="margin-top:8px; padding:6px 10px; font-size:11px;" onclick="moverEtapa(\'' + item.id + '\',\'' + etapa.proxima + '\')">Mover →</button>'
+            : '';
+          return '<div class="kanban-card"><div class="name">' + item.nome_completo + '</div>' +
+                 '<div class="row"><span>' + (item.celula_nome || 'Sem célula de origem') + '</span>' +
+                 '<span class="mono">' + formatarData(item.atualizado_em) + '</span></div>' + botao + '</div>';
+        }).join('');
+        return '<div class="kanban-col"><div class="col-head"><h4>' + etapa.titulo + '</h4>' +
+               '<span class="badge ' + (etapa.chave === 'concluido' ? 'teal' : 'grey') + '">' + itens.length + '</span></div>' +
+               (cards || '<div style="color:var(--ink-soft); font-size:12.5px; padding:6px;">Vazio</div>') + '</div>';
+      }).join('');
+    } catch (err) {
+      container.innerHTML = '<div style="color:var(--rose);">' + err.message + '</div>';
+    }
+  }
+
+  async function moverEtapa(acompanhamentoId, novaEtapa){
+    try {
+      await apiFetch('/consolidacao/' + acompanhamentoId + '/etapa', { method: 'PUT', body: JSON.stringify({ etapa: novaEtapa }) });
+      carregarConsolidacao();
+    } catch (err) { alert('Erro ao mover etapa: ' + err.message); }
+  }
+
+  // ==========================================================================
+  // INSTITUTO DE VENCEDORES
+  // ==========================================================================
+  async function carregarInstituto(){
+    var tbody = document.getElementById('instituto-tbody');
+    try {
+      var turmas = await apiFetch('/instituto/turmas');
+      var mapaStatus = { em_curso: ['teal','Em curso'], concluida: ['grey','Concluída'], nao_iniciada: ['rose','Início recente'] };
+      tbody.innerHTML = turmas.map(function(t){
+        var info = mapaStatus[t.status] || ['grey', t.status];
+        return '<tr><td>' + t.nome + '</td><td>' + (t.dia_semana || '') + (t.horario ? ', ' + t.horario : '') + '</td>' +
+               '<td>' + t.matriculados + '</td>' +
+               '<td><div class="bar-bg" style="width:120px;"><div class="bar-fill" style="width:' + t.frequencia_percentual + '%;"></div></div></td>' +
+               '<td><span class="badge ' + info[0] + '">' + info[1] + '</span></td></tr>';
+      }).join('') || '<tr><td colspan="5" style="color:var(--ink-soft);">Nenhuma turma cadastrada.</td></tr>';
+    } catch (err) {
+      tbody.innerHTML = '<tr><td colspan="5" style="color:var(--rose);">' + err.message + '</td></tr>';
+    }
+  }
+
+  async function novaTurma(){
+    var nome = prompt('Nome da turma (ex: Módulo 1 — Fundamentos):');
+    if (!nome) return;
+    var dia_semana = prompt('Dia da semana:') || null;
+    try {
+      await apiFetch('/instituto/turmas', { method: 'POST', body: JSON.stringify({ nome: nome, dia_semana: dia_semana }) });
+      carregarInstituto();
+    } catch (err) { alert('Erro ao criar turma: ' + err.message); }
+  }
+
+  // ==========================================================================
+  // FREQUÊNCIA DE CULTOS
+  // ==========================================================================
+  async function carregarCultos(){
+    var container = document.getElementById('cultos-chart');
+    try {
+      var cultos = await apiFetch('/cultos?limite=8');
+      var maior = Math.max.apply(null, cultos.map(function(c){ return c.quantitativo_presentes; }).concat([1]));
+      container.innerHTML = cultos.map(function(c){
+        var altura = Math.round((c.quantitativo_presentes / maior) * 100);
+        var cor = c.tipo_culto === 'domingo' ? 'var(--primary)' : (c.tipo_culto === 'sabado' ? 'var(--gold-tint)' : 'var(--primary-tint)');
+        return '<div class="bar-group"><div class="bar" style="height:' + altura + '%; background:' + cor + ';"></div>' +
+               '<div class="bar-label">' + c.tipo_culto.slice(0,3) + '</div></div>';
+      }).join('') || '<div style="color:var(--ink-soft); font-size:13px;">Nenhum culto lançado ainda.</div>';
+    } catch (err) {
+      container.innerHTML = '<div style="color:var(--rose);">' + err.message + '</div>';
+    }
+  }
+
+  async function registrarCulto(){
+    var msg = document.getElementById('culto-msg');
+    msg.style.display = 'none';
+    var data = document.getElementById('culto-data').value;
+    var quantitativo = document.getElementById('culto-quantitativo').value;
+    if (!data || !quantitativo) {
+      msg.textContent = 'Informe a data e o quantitativo de presentes.';
+      msg.style.color = 'var(--rose)';
+      msg.style.display = 'block';
+      return;
+    }
+    try {
+      await apiFetch('/cultos', {
+        method: 'POST',
+        body: JSON.stringify({
+          tipo_culto: valorSelecionado('culto-tipo') || 'domingo',
+          data_culto: data,
+          quantitativo_presentes: Number(quantitativo),
+        })
+      });
+      msg.textContent = 'Frequência registrada!';
+      msg.style.color = 'var(--teal)';
+      msg.style.display = 'block';
+      carregarCultos();
+    } catch (err) {
+      msg.textContent = 'Erro ao registrar: ' + err.message;
+      msg.style.color = 'var(--rose)';
+      msg.style.display = 'block';
+    }
+  }
+
+  // ==========================================================================
+  // EVENTOS
+  // ==========================================================================
+  async function carregarEventos(){
+    var grid = document.getElementById('eventos-grid');
+    try {
+      var eventos = await apiFetch('/eventos');
+      grid.innerHTML = eventos.map(function(e){
+        var d = new Date(e.data_evento + 'T00:00:00');
+        var dia = String(d.getDate()).padStart(2,'0');
+        var mes = d.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '');
+        return '<div class="card event-card">' +
+          '<div class="event-date"><div class="day">' + dia + '</div><div class="mon">' + mes + '</div></div>' +
+          '<div><h3 style="margin:0 0 4px; font-size:15px;">' + e.titulo + '</h3>' +
+          '<div style="font-size:13px; color:var(--ink-soft);">' + (e.horario || '') + (e.local ? ' · ' + e.local : '') + '</div></div></div>';
+      }).join('') || '<div style="color:var(--ink-soft);">Nenhum evento cadastrado.</div>';
+    } catch (err) {
+      grid.innerHTML = '<div style="color:var(--rose);">' + err.message + '</div>';
+    }
+  }
+
+  async function novoEvento(){
+    var titulo = prompt('Título do evento:');
+    if (!titulo) return;
+    var data_evento = prompt('Data (AAAA-MM-DD):');
+    if (!data_evento) return;
+    var horario = prompt('Horário (ex: 19h):') || null;
+    var local = prompt('Local:') || null;
+    try {
+      await apiFetch('/eventos', { method: 'POST', body: JSON.stringify({ titulo: titulo, data_evento: data_evento, horario: horario, local: local }) });
+      carregarEventos();
+    } catch (err) { alert('Erro ao criar evento: ' + err.message); }
+  }
+</script>
+</body>
+</html>
