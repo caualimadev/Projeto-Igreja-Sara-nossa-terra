@@ -39,8 +39,9 @@ router.put('/:id/etapa', async (req, res) => {
   if (!ETAPAS_VALIDAS.includes(etapa)) {
     return res.status(400).json({ erro: `etapa deve ser uma de: ${ETAPAS_VALIDAS.join(', ')}` });
   }
-  const client = await pool.connect();
+  let client;
   try {
+    client = await pool.connect();
     await client.query('BEGIN');
     const { rows } = await client.query(
       `UPDATE consolidacao_acompanhamento
@@ -59,11 +60,11 @@ router.put('/:id/etapa', async (req, res) => {
     await client.query('COMMIT');
     res.json(rows[0]);
   } catch (err) {
-    await client.query('ROLLBACK');
+    if (client) await client.query('ROLLBACK').catch(() => {});
     console.error(err);
     res.status(500).json({ erro: 'Erro ao mover etapa de consolidação' });
   } finally {
-    client.release();
+    if (client) client.release();
   }
 });
 

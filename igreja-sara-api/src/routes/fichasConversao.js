@@ -58,8 +58,9 @@ router.post('/', async (req, res) => {
 
   if (!nome_completo) return res.status(400).json({ erro: 'nome_completo é obrigatório' });
 
-  const client = await pool.connect();
+  let client;
   try {
+    client = await pool.connect();
     await client.query('BEGIN');
 
     const fichaResult = await client.query(
@@ -100,11 +101,11 @@ router.post('/', async (req, res) => {
     await client.query('COMMIT');
     res.status(201).json({ ficha, acompanhamento: acompanhamento.rows[0] });
   } catch (err) {
-    await client.query('ROLLBACK');
+    if (client) await client.query('ROLLBACK').catch(() => {});
     console.error(err);
     res.status(500).json({ erro: 'Erro ao criar ficha de conversão' });
   } finally {
-    client.release();
+    if (client) client.release();
   }
 });
 

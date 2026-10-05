@@ -1,12 +1,12 @@
-require('dotenv').config();
 const bcrypt = require('bcryptjs');
 const { Pool } = require('pg');
+const { adminNome, adminEmail, adminSenha, databaseUrl } = require('../src/config/environment');
 
 async function main() {
-  const pool = new Pool({ connectionString: process.env.DATABASE_URL });
-  const nome = process.env.ADMIN_NOME || 'Administrador';
-  const email = process.env.ADMIN_EMAIL;
-  const senha = process.env.ADMIN_SENHA;
+  const pool = new Pool({ connectionString: databaseUrl });
+  const nome = adminNome;
+  const email = adminEmail;
+  const senha = adminSenha;
 
   if (!email || !senha) {
     console.error('Defina ADMIN_EMAIL e ADMIN_SENHA no .env antes de rodar o seed.');

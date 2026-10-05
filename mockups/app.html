@@ -270,6 +270,14 @@
   .mockup-flag .dot{margin-top:5px;}
   @media (max-width:640px){ .mockup-flag{display:none;} }
   .mockup-flag .dot{width:6px;height:6px;border-radius:50%; background:var(--gold);}
+
+  @media print{
+    .sidebar, .topbar-actions, .no-print, .mockup-flag{display:none !important;}
+    #app.active{display:block;}
+    .topbar{position:static;}
+    .content{padding:12px 0;}
+    .card, .table-wrap{box-shadow:none;}
+  }
 </style>
 </head>
 <body>
@@ -486,23 +494,31 @@
     <div class="view" id="view-celula12">
       <div class="topbar">
         <div><h1>Célula de 12</h1><div class="sub">Reuniões quinzenais da alta liderança — RF03</div></div>
-        <div class="topbar-actions"><button class="btn btn-primary btn-sm">+ Registrar encontro</button></div>
+        <div class="topbar-actions"><button class="btn btn-primary btn-sm" onclick="registrarEncontroCelula12()">+ Registrar encontro</button></div>
       </div>
       <div class="content">
-        <div class="legal-note">⚠️ <div><strong>Ainda com dados de exemplo.</strong> A API já tem os endpoints de <span class="mono">/api/celula-doze/...</span>, mas esta tela é o próximo passo a conectar.</div></div>
         <div class="grid cols-3">
-          <div class="card kpi"><div class="value">12</div><div class="label">Discípulos G-12 do pastor</div></div>
-          <div class="card kpi"><div class="value">9</div><div class="label">Presentes no último encontro</div></div>
-          <div class="card kpi"><div class="value">14 set</div><div class="label">Próximo encontro quinzenal</div></div>
+          <div class="card kpi"><div class="value" id="c12-kpi-total">—</div><div class="label">Discípulos G-12 do pastor</div></div>
+          <div class="card kpi"><div class="value" id="c12-kpi-presentes">—</div><div class="label" id="c12-kpi-presentes-label">Presentes no último encontro</div></div>
+          <div class="card kpi"><div class="value" id="c12-kpi-proximo">—</div><div class="label">Próximo encontro quinzenal</div></div>
         </div>
         <div class="section-title"><div><span class="eyebrow">Discipulado</span><h2>Discípulos G-12 · Pr. Enoque</h2></div></div>
+        <div id="c12-msg" style="display:none; font-size:13px; margin-bottom:12px;"></div>
         <div class="table-wrap">
           <table>
-            <tr><th>Discípulo</th><th>G-144 de</th><th>Presença 14/08</th><th>Presença 28/08</th></tr>
-            <tr><td><div class="person"><div class="pic">JP</div><div class="name">João Pedro Alves</div></div></td><td>Renata Sousa</td><td><span class="badge teal">Presente</span></td><td><span class="badge teal">Presente</span></td></tr>
-            <tr><td><div class="person"><div class="pic">EC</div><div class="name">Edvan Costa</div></div></td><td>Luana Borges</td><td><span class="badge teal">Presente</span></td><td><span class="badge rose">Ausente</span></td></tr>
-            <tr><td><div class="person"><div class="pic">MN</div><div class="name">Marta Nunes</div></div></td><td>João Pedro Alves</td><td><span class="badge rose">Ausente</span></td><td><span class="badge teal">Presente</span></td></tr>
+            <tr id="c12-thead"><th>Discípulo</th><th>G-144 de</th><th></th></tr>
+            <tbody id="c12-tbody">
+              <tr><td colspan="3" style="color:var(--ink-soft);">Carregando…</td></tr>
+            </tbody>
           </table>
+        </div>
+        <div style="font-size:12.5px; color:var(--ink-soft); margin-top:10px;">Para lançar ou corrigir uma presença, clique na situação do discípulo naquele encontro.</div>
+        <div class="card" style="padding:20px 24px; margin-top:24px;">
+          <div class="form-row">
+            <div class="field"><label>Novo discípulo</label><select id="c12-sel-discipulo"></select></div>
+            <div class="field"><label>G-144 de (discipulador)</label><select id="c12-sel-discipulador"></select></div>
+          </div>
+          <button class="btn btn-ghost btn-sm" onclick="adicionarDiscipuloCelula12()">Adicionar à Célula de 12</button>
         </div>
       </div>
     </div>
@@ -511,22 +527,37 @@
     <div class="view" id="view-raiox">
       <div class="topbar">
         <div><h1>Raio X — Relatório mensal</h1><div class="sub">Consolidado por célula, mês de referência</div></div>
-        <div class="topbar-actions"><button class="btn btn-ghost btn-sm">Baixar PDF</button><button class="btn btn-primary btn-sm">Gerar relatório</button></div>
+        <div class="topbar-actions"><button class="btn btn-ghost btn-sm" onclick="window.print()">Baixar PDF</button><button class="btn btn-primary btn-sm" onclick="carregarRaioX()">Gerar relatório</button></div>
       </div>
       <div class="content">
-        <div class="legal-note">⚠️ <div><strong>Ainda com dados de exemplo.</strong> A API já expõe <span class="mono">GET /api/raiox/:celulaId</span> (view <span class="mono">vw_raiox_mensal</span>); falta o seletor de célula/mês aqui na tela.</div></div>
+        <div class="card no-print" style="padding:20px 24px; margin-bottom:20px;">
+          <div class="form-row">
+            <div class="field"><label>Célula</label><select id="raiox-celula" onchange="carregarRaioX()"></select></div>
+            <div class="field"><label>Mês de referência</label><input type="month" id="raiox-mes" onchange="carregarRaioX()"></div>
+          </div>
+          <button class="btn btn-ghost btn-sm" onclick="alternarLancamentoRaioX()">Lançar presenças de um encontro</button>
+          <div id="raiox-lancar" style="display:none; margin-top:18px; padding-top:18px; border-top:1px solid var(--border);">
+            <div class="form-row">
+              <div class="field"><label>Data do encontro</label><input type="date" id="raiox-lancar-data"></div>
+              <div class="field" style="display:flex; align-items:flex-end;"><a href="#" onclick="marcarTodosRaioX(); return false;" style="font-size:13px; color:var(--primary); font-weight:600; padding-bottom:12px;">Marcar todos como presentes</a></div>
+            </div>
+            <div id="raiox-lancar-lista" style="display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:8px 16px; margin-bottom:16px;"></div>
+            <button class="btn btn-primary btn-sm" style="width:auto;" onclick="salvarPresencasRaioX()">Salvar presenças</button>
+            <div id="raiox-lancar-msg" style="display:none; font-size:13px; margin-top:10px;"></div>
+          </div>
+        </div>
         <div class="card" style="padding:24px 26px;">
           <div class="grid cols-4" style="margin-bottom:22px;">
-            <div><div class="mono" style="font-size:11px; color:var(--ink-soft); text-transform:uppercase;">Célula</div><div style="font-weight:700;">Videira</div></div>
-            <div><div class="mono" style="font-size:11px; color:var(--ink-soft); text-transform:uppercase;">Líder</div><div style="font-weight:700;">João Pedro Alves</div></div>
-            <div><div class="mono" style="font-size:11px; color:var(--ink-soft); text-transform:uppercase;">Mês / Ano</div><div style="font-weight:700;">Agosto / 2026</div></div>
-            <div><div class="mono" style="font-size:11px; color:var(--ink-soft); text-transform:uppercase;">Total membros</div><div style="font-weight:700;">14</div></div>
+            <div><div class="mono" style="font-size:11px; color:var(--ink-soft); text-transform:uppercase;">Célula</div><div style="font-weight:700;" id="raiox-h-celula">—</div></div>
+            <div><div class="mono" style="font-size:11px; color:var(--ink-soft); text-transform:uppercase;">Líder</div><div style="font-weight:700;" id="raiox-h-lider">—</div></div>
+            <div><div class="mono" style="font-size:11px; color:var(--ink-soft); text-transform:uppercase;">Mês / Ano</div><div style="font-weight:700;" id="raiox-h-mes">—</div></div>
+            <div><div class="mono" style="font-size:11px; color:var(--ink-soft); text-transform:uppercase;">Total membros</div><div style="font-weight:700;" id="raiox-h-total">—</div></div>
           </div>
           <table>
             <tr><th>Nº</th><th>Integrante</th><th>Telefone</th><th>Presenças no mês</th><th>Consolidação</th><th>Inst. Vencedores</th></tr>
-            <tr><td class="mono">01</td><td>Ana Karla Rocha</td><td class="mono">(86) 99911-2233</td><td><span class="badge teal">4/4</span></td><td><span class="badge grey">—</span></td><td><span class="badge violet">M1</span></td></tr>
-            <tr><td class="mono">02</td><td>Pedro Henrique Dias</td><td class="mono">(86) 99822-1010</td><td><span class="badge gold">3/4</span></td><td><span class="badge teal">Pós-revisão</span></td><td><span class="badge grey">—</span></td></tr>
-            <tr><td class="mono">03</td><td>Vitória Menezes</td><td class="mono">(86) 99733-4545</td><td><span class="badge teal">4/4</span></td><td><span class="badge grey">—</span></td><td><span class="badge violet">M2</span></td></tr>
+            <tbody id="raiox-tbody">
+              <tr><td colspan="6" style="color:var(--ink-soft);">Carregando…</td></tr>
+            </tbody>
           </table>
         </div>
       </div>
@@ -765,6 +796,8 @@
     instituto: carregarInstituto,
     cultos: carregarCultos,
     eventos: carregarEventos,
+    celula12: carregarCelula12,
+    raiox: carregarRaioX,
   };
 
   document.querySelectorAll('.nav-item').forEach(function(item){
@@ -798,8 +831,27 @@
   function iniciais(nome){
     return (nome || '?').split(' ').filter(Boolean).slice(0,2).map(function(p){ return p[0]; }).join('').toUpperCase();
   }
+  // Escapa texto vindo do banco antes de colocá-lo em innerHTML
+  function esc(texto){
+    return String(texto == null ? '' : texto).replace(/[&<>"']/g, function(c){
+      return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c];
+    });
+  }
+  // Data de hoje no fuso do navegador, no formato AAAA-MM-DD
+  function hojeISO(){
+    var d = new Date();
+    return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+  }
+  // 'AAAA-MM-DD' -> 'dd/mm'
+  function dataCurta(iso){
+    if (!iso) return '—';
+    var p = String(iso).slice(0,10).split('-');
+    return p[2] + '/' + p[1];
+  }
   function formatarData(iso){
     if (!iso) return '—';
+    // datas puras que o servidor devolve como meia-noite UTC não devem recuar um dia no navegador
+    if (/T00:00:00(\.000)?Z$/.test(iso)) iso = iso.slice(0,10);
     var d = new Date(iso + (iso.length === 10 ? 'T00:00:00' : ''));
     if (isNaN(d)) return iso;
     return d.toLocaleDateString('pt-BR', { day:'2-digit', month:'short', year:'numeric' }).replace('.', '');
@@ -1168,6 +1220,239 @@
       await apiFetch('/eventos', { method: 'POST', body: JSON.stringify({ titulo: titulo, data_evento: data_evento, horario: horario, local: local }) });
       carregarEventos();
     } catch (err) { alert('Erro ao criar evento: ' + err.message); }
+  }
+
+  // ==========================================================================
+  // CÉLULA DE 12
+  // ==========================================================================
+  function mensagemCelula12(texto, erro){
+    var box = document.getElementById('c12-msg');
+    box.textContent = texto;
+    box.style.color = erro ? 'var(--rose)' : 'var(--teal)';
+    box.style.display = texto ? 'block' : 'none';
+  }
+
+  function badgePresenca(encontroId, discipuloId, situacao){
+    var info = situacao === true ? ['teal','Presente'] : (situacao === false ? ['rose','Ausente'] : ['grey','—']);
+    var novo = situacao === true ? 'false' : 'true';
+    return '<span class="badge ' + info[0] + '" style="cursor:pointer;" title="Clique para alterar" ' +
+      'onclick="alternarPresencaCelula12(\'' + esc(encontroId) + '\',\'' + esc(discipuloId) + '\',' + novo + ')">' + info[1] + '</span>';
+  }
+
+  async function carregarCelula12(){
+    var thead = document.getElementById('c12-thead');
+    var tbody = document.getElementById('c12-tbody');
+    try {
+      var painel = await apiFetch('/celula-doze/painel?encontros=2');
+      var encontros = painel.encontros;
+
+      thead.innerHTML = '<th>Discípulo</th><th>G-144 de</th>' +
+        encontros.map(function(e){ return '<th>Presença ' + dataCurta(e.data_encontro) + '</th>'; }).join('') + '<th></th>';
+
+      tbody.innerHTML = painel.discipulos.map(function(d){
+        return '<tr>' +
+          '<td><div class="person"><div class="pic">' + esc(iniciais(d.discipulo_nome)) + '</div><div class="name">' + esc(d.discipulo_nome) + '</div></div></td>' +
+          '<td>' + esc(d.discipulador_nome || '—') + '</td>' +
+          encontros.map(function(e){
+            return '<td>' + badgePresenca(e.id, d.discipulo_id, d.presencas[e.id]) + '</td>';
+          }).join('') +
+          '<td><span class="icon-link" title="Remover da Célula de 12" onclick="removerDiscipuloCelula12(\'' + esc(d.id) + '\')">🗑</span></td>' +
+          '</tr>';
+      }).join('') || '<tr><td colspan="' + (encontros.length + 3) + '" style="color:var(--ink-soft);">Nenhum discípulo na Célula de 12 ainda. Use o formulário abaixo para adicionar.</td></tr>';
+
+      document.getElementById('c12-kpi-total').textContent = painel.total_discipulos;
+      var ultimo = encontros[encontros.length - 1];
+      if (ultimo) {
+        document.getElementById('c12-kpi-presentes').textContent = ultimo.presentes;
+        document.getElementById('c12-kpi-presentes-label').textContent = 'Presentes no último encontro · ' + dataCurta(ultimo.data_encontro);
+        var proximo = new Date(ultimo.data_encontro.slice(0,10) + 'T00:00:00');
+        proximo.setDate(proximo.getDate() + 14);
+        document.getElementById('c12-kpi-proximo').textContent =
+          proximo.getDate() + ' ' + proximo.toLocaleDateString('pt-BR', { month:'short' }).replace('.', '');
+      } else {
+        document.getElementById('c12-kpi-presentes').textContent = '—';
+        document.getElementById('c12-kpi-presentes-label').textContent = 'Presentes no último encontro';
+        document.getElementById('c12-kpi-proximo').textContent = '—';
+      }
+      preencherSelectsCelula12(painel.discipulos);
+    } catch (err) {
+      tbody.innerHTML = '<tr><td colspan="3" style="color:var(--rose);">' + esc(err.message) + '</td></tr>';
+    }
+  }
+
+  async function preencherSelectsCelula12(jaNaCelula12){
+    try {
+      var membros = await apiFetch('/membros');
+      var ocupados = {};
+      jaNaCelula12.forEach(function(d){ ocupados[d.discipulo_id] = true; });
+      var opcoes = membros.map(function(m){ return { id: m.id, nome: m.nome }; });
+      document.getElementById('c12-sel-discipulo').innerHTML =
+        opcoes.filter(function(m){ return !ocupados[m.id]; })
+              .map(function(m){ return '<option value="' + esc(m.id) + '">' + esc(m.nome) + '</option>'; }).join('');
+      document.getElementById('c12-sel-discipulador').innerHTML =
+        '<option value="">— ninguém (discípulo direto do pastor) —</option>' +
+        opcoes.map(function(m){ return '<option value="' + esc(m.id) + '">' + esc(m.nome) + '</option>'; }).join('');
+    } catch (err) { /* sem a lista de membros o formulário fica vazio; a tabela continua funcionando */ }
+  }
+
+  async function adicionarDiscipuloCelula12(){
+    var discipulo = document.getElementById('c12-sel-discipulo').value;
+    var discipulador = document.getElementById('c12-sel-discipulador').value;
+    if (!discipulo) { mensagemCelula12('Escolha o discípulo que será adicionado.', true); return; }
+    try {
+      await apiFetch('/celula-doze/discipulos', {
+        method: 'POST',
+        body: JSON.stringify({ discipulo_id: discipulo, discipulador_id: discipulador || null })
+      });
+      mensagemCelula12('Discípulo adicionado.', false);
+      carregarCelula12();
+    } catch (err) { mensagemCelula12('Erro ao adicionar: ' + err.message, true); }
+  }
+
+  async function removerDiscipuloCelula12(id){
+    if (!confirm('Remover este discípulo da Célula de 12? O cadastro do membro continua existindo.')) return;
+    try {
+      await apiFetch('/celula-doze/discipulos/' + id, { method: 'DELETE' });
+      carregarCelula12();
+    } catch (err) { mensagemCelula12('Erro ao remover: ' + err.message, true); }
+  }
+
+  async function registrarEncontroCelula12(){
+    var data = prompt('Data do encontro (AAAA-MM-DD):', hojeISO());
+    if (!data) return;
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(data)) { mensagemCelula12('Use o formato AAAA-MM-DD, por exemplo 2026-10-14.', true); return; }
+    var observacao = prompt('Observação (opcional):') || null;
+    try {
+      await apiFetch('/celula-doze/encontros', { method: 'POST', body: JSON.stringify({ data_encontro: data, observacao: observacao }) });
+      mensagemCelula12('Encontro de ' + dataCurta(data) + ' criado. Clique na situação de cada discípulo para lançar a presença.', false);
+      carregarCelula12();
+    } catch (err) { mensagemCelula12('Erro ao registrar encontro: ' + err.message, true); }
+  }
+
+  async function alternarPresencaCelula12(encontroId, discipuloId, presente){
+    try {
+      await apiFetch('/celula-doze/encontros/' + encontroId + '/presencas', {
+        method: 'POST',
+        body: JSON.stringify({ presencas: [{ discipulo_id: discipuloId, presente: presente }] })
+      });
+      carregarCelula12();
+    } catch (err) { mensagemCelula12('Erro ao lançar presença: ' + err.message, true); }
+  }
+
+  // ==========================================================================
+  // RAIO X MENSAL
+  // ==========================================================================
+  var raioxCelulas = [];
+
+  function badgeConsolidacao(etapa){
+    var mapa = {
+      contato_inicial: ['gold','Contato inicial'], primeira_visita: ['gold','1ª visita'],
+      em_acompanhamento: ['teal','Em acompanhamento'], concluido: ['teal','Concluído']
+    };
+    var info = mapa[etapa] || ['grey','—'];
+    return '<span class="badge ' + info[0] + '">' + info[1] + '</span>';
+  }
+  function badgeInstituto(turma, aprovado){
+    if (!turma) return '<span class="badge grey">—</span>';
+    if (aprovado === true) return '<span class="badge teal">Aprovado</span>';
+    return '<span class="badge violet">' + esc(turma.split(' — ')[0]) + '</span>';
+  }
+  function nomeDoMes(mes){ // '2026-08' -> 'Agosto / 2026'
+    var p = mes.split('-');
+    var nome = new Date(Number(p[0]), Number(p[1]) - 1, 1).toLocaleDateString('pt-BR', { month: 'long' });
+    return nome.charAt(0).toUpperCase() + nome.slice(1) + ' / ' + p[0];
+  }
+
+  async function carregarRaioX(){
+    var select = document.getElementById('raiox-celula');
+    var inputMes = document.getElementById('raiox-mes');
+    var tbody = document.getElementById('raiox-tbody');
+    try {
+      if (!raioxCelulas.length) {
+        raioxCelulas = await apiFetch('/celulas');
+        select.innerHTML = raioxCelulas.map(function(c){ return '<option value="' + esc(c.id) + '">' + esc(c.nome) + '</option>'; }).join('');
+      }
+      if (!raioxCelulas.length) {
+        tbody.innerHTML = '<tr><td colspan="6" style="color:var(--ink-soft);">Cadastre uma célula primeiro para gerar o Raio X.</td></tr>';
+        return;
+      }
+      if (!inputMes.value) inputMes.value = hojeISO().slice(0,7);
+
+      var celula = raioxCelulas.filter(function(c){ return c.id === select.value; })[0] || raioxCelulas[0];
+      var linhas = await apiFetch('/raiox/' + encodeURIComponent(celula.id) + '?mes=' + encodeURIComponent(inputMes.value));
+
+      document.getElementById('raiox-h-celula').textContent = celula.nome;
+      document.getElementById('raiox-h-lider').textContent = celula.lider_nome || '—';
+      document.getElementById('raiox-h-mes').textContent = nomeDoMes(inputMes.value);
+      document.getElementById('raiox-h-total').textContent = linhas.length;
+
+      tbody.innerHTML = linhas.map(function(l, i){
+        var presencas = Number(l.presencas_no_mes), encontros = Number(l.encontros_no_mes);
+        var cor = presencas === encontros ? 'teal' : (presencas / encontros >= 0.5 ? 'gold' : 'rose');
+        return '<tr>' +
+          '<td class="mono">' + String(i + 1).padStart(2, '0') + '</td>' +
+          '<td>' + esc(l.membro_nome) + '</td>' +
+          '<td class="mono">' + esc(l.whatsapp || '—') + '</td>' +
+          '<td><span class="badge ' + cor + '">' + presencas + '/' + encontros + '</span></td>' +
+          '<td>' + badgeConsolidacao(l.consolidacao_etapa) + '</td>' +
+          '<td>' + badgeInstituto(l.instituto_turma, l.instituto_aprovado) + '</td>' +
+          '</tr>';
+      }).join('') || '<tr><td colspan="6" style="color:var(--ink-soft);">Nenhuma presença lançada para esta célula em ' + nomeDoMes(inputMes.value) + '. Use "Lançar presenças de um encontro".</td></tr>';
+    } catch (err) {
+      tbody.innerHTML = '<tr><td colspan="6" style="color:var(--rose);">' + esc(err.message) + '</td></tr>';
+    }
+  }
+
+  // ---- lançamento de presenças de um encontro da célula (alimenta o Raio X)
+  var raioxMembrosLancar = [];
+
+  async function alternarLancamentoRaioX(){
+    var painel = document.getElementById('raiox-lancar');
+    if (painel.style.display === 'block') { painel.style.display = 'none'; return; }
+    var lista = document.getElementById('raiox-lancar-lista');
+    var select = document.getElementById('raiox-celula');
+    document.getElementById('raiox-lancar-data').value = hojeISO();
+    document.getElementById('raiox-lancar-msg').style.display = 'none';
+    painel.style.display = 'block';
+    lista.innerHTML = '<div style="color:var(--ink-soft);">Carregando membros…</div>';
+    try {
+      raioxMembrosLancar = await apiFetch('/membros?celula_id=' + encodeURIComponent(select.value));
+      lista.innerHTML = raioxMembrosLancar.map(function(m){
+        return '<label style="display:flex; align-items:center; gap:8px; font-size:14px;">' +
+          '<input type="checkbox" class="raiox-check" value="' + esc(m.id) + '"> ' + esc(m.nome) + '</label>';
+      }).join('') || '<div style="color:var(--ink-soft);">Esta célula ainda não tem membros. Associe membros à célula na tela Membros.</div>';
+    } catch (err) {
+      lista.innerHTML = '<div style="color:var(--rose);">' + esc(err.message) + '</div>';
+    }
+  }
+
+  function marcarTodosRaioX(){
+    document.querySelectorAll('.raiox-check').forEach(function(c){ c.checked = true; });
+  }
+
+  async function salvarPresencasRaioX(){
+    var msg = document.getElementById('raiox-lancar-msg');
+    var data = document.getElementById('raiox-lancar-data').value;
+    var celulaId = document.getElementById('raiox-celula').value;
+    msg.style.display = 'block';
+    if (!data) { msg.style.color = 'var(--rose)'; msg.textContent = 'Informe a data do encontro.'; return; }
+    var checks = document.querySelectorAll('.raiox-check');
+    if (!checks.length) { msg.style.color = 'var(--rose)'; msg.textContent = 'Não há membros para lançar.'; return; }
+    // todos os membros da lista entram no lançamento: marcados = presente, desmarcados = ausente
+    var presencas = Array.prototype.map.call(checks, function(c){ return { membro_id: c.value, presente: c.checked }; });
+    try {
+      await apiFetch('/celulas/' + encodeURIComponent(celulaId) + '/frequencia', {
+        method: 'POST',
+        body: JSON.stringify({ data_encontro: data, presencas: presencas })
+      });
+      msg.style.color = 'var(--teal)';
+      msg.textContent = 'Presenças de ' + dataCurta(data) + ' salvas.';
+      document.getElementById('raiox-mes').value = data.slice(0,7);
+      carregarRaioX();
+    } catch (err) {
+      msg.style.color = 'var(--rose)';
+      msg.textContent = 'Erro ao salvar: ' + err.message;
+    }
   }
 </script>
 </body>

@@ -1,6 +1,6 @@
 const express = require('express');
 const { query } = require('../db');
-const { autenticar } = require('../middleware/auth');
+const { autenticar, permitir } = require('../middleware/auth');
 
 const router = express.Router();
 router.use(autenticar);
@@ -56,7 +56,7 @@ router.put('/:id', async (req, res) => {
 });
 
 // DELETE /api/eventos/:id
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', permitir('administrador', 'secretaria'), async (req, res) => {
   try {
     const { rowCount } = await query('DELETE FROM eventos WHERE id = $1', [req.params.id]);
     if (!rowCount) return res.status(404).json({ erro: 'Evento não encontrado' });

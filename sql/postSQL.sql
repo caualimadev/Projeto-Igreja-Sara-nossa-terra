@@ -1,3 +1,4 @@
+
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
 -- ============================================================================
@@ -27,13 +28,11 @@ CREATE TABLE membros (
     status              VARCHAR(20) NOT NULL DEFAULT 'visitante'
                         CHECK (status IN ('visitante','novo_convertido','reconciliacao',
                                            'membro','parceiro_de_deus')),
-    celula_id           UUID REFERENCES celulas(id) ON DELETE SET NULL,
+    celula_id           UUID,             -- FK criada logo após a tabela 'celulas' (ver abaixo)
     membro_desde        DATE,             -- "Desde" mostrado na listagem de Membros
     criado_em           TIMESTAMP NOT NULL DEFAULT now(),
     atualizado_em       TIMESTAMP NOT NULL DEFAULT now()
 );
--- OBS: a FK celula_id é criada antes da tabela 'celulas' existir; ver nota no final
--- (em SQL real, crie 'celulas' primeiro ou use ALTER TABLE para a FK — ajustado abaixo).
 
 -- ============================================================================
 -- 3. CÉLULAS
@@ -44,8 +43,8 @@ CREATE TABLE celulas (
     bairro          VARCHAR(100),
     dia_semana      VARCHAR(20),                    -- Terça, Sábado, Quinta...
     horario         TIME,
-    lider_id        UUID REFERENCES membros(id),
-    co_lider_id     UUID REFERENCES membros(id),
+    lider_id        UUID REFERENCES membros(id) ON DELETE SET NULL,
+    co_lider_id     UUID REFERENCES membros(id) ON DELETE SET NULL,
     anfitriao       VARCHAR(150),                   -- "Fam. Sousa"
     status          VARCHAR(20) NOT NULL DEFAULT 'ativa'
                     CHECK (status IN ('ativa','em_multiplicacao','inativa')),
@@ -72,7 +71,7 @@ CREATE TABLE celula_frequencia (
 CREATE TABLE celula_doze_discipulos (
     id                  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     discipulo_id        UUID NOT NULL REFERENCES membros(id) ON DELETE CASCADE,
-    discipulador_id     UUID REFERENCES membros(id),   -- "G-144 de"
+    discipulador_id     UUID REFERENCES membros(id) ON DELETE SET NULL,   -- "G-144 de"
     UNIQUE (discipulo_id)
 );
 
@@ -146,8 +145,8 @@ CREATE TABLE ficha_necessidades (
 CREATE TABLE consolidacao_acompanhamento (
     id                  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     ficha_id            UUID NOT NULL REFERENCES fichas_conversao(id) ON DELETE CASCADE,
-    celula_origem_id    UUID REFERENCES celulas(id),
-    lider_responsavel_id UUID REFERENCES membros(id),
+    celula_origem_id    UUID REFERENCES celulas(id) ON DELETE SET NULL,
+    lider_responsavel_id UUID REFERENCES membros(id) ON DELETE SET NULL,
     etapa               VARCHAR(25) NOT NULL DEFAULT 'contato_inicial'
                         CHECK (etapa IN ('contato_inicial','primeira_visita',
                                           'em_acompanhamento','concluido')),
@@ -235,8 +234,10 @@ CREATE INDEX idx_consolidacao_etapa  ON consolidacao_acompanhamento (etapa);
 
 -- ============================================================================
 -- VIEW de apoio para o "Raio X mensal" (presenças de célula por membro/mês)
+-- Traz também a etapa de consolidação mais recente e a situação no Instituto
+-- de Vencedores, que são as duas últimas colunas da tela.
 -- ============================================================================
-CREATE VIEW vw_raiox_mensal AS
+CREATE OR REPLACE VIEW vw_raiox_mensal AS
 SELECT
     c.id            AS celula_id,
     c.nome          AS celula_nome,
@@ -246,7 +247,26 @@ SELECT
     m.nome          AS membro_nome,
     m.whatsapp,
     COUNT(*) FILTER (WHERE cf.presente) AS presencas_no_mes,
-    COUNT(*)        AS encontros_no_mes
+    COUNT(*)        AS encontros_no_mes,
+    -- etapa mais recente do acompanhamento ligado a este membro (NULL se nunca passou pela consolidação)
+    (SELECT ca.etapa
+       FROM fichas_conversao f
+       JOIN consolidacao_acompanhamento ca ON ca.ficha_id = f.id
+      WHERE f.membro_id = m.id
+      ORDER BY ca.atualizado_em DESC
+      LIMIT 1) AS consolidacao_etapa,
+    -- turma mais recente do Instituto e se já foi aprovado (NULL se nunca se matriculou)
+    (SELECT t.nome
+       FROM instituto_matriculas im
+       JOIN instituto_turmas t ON t.id = im.turma_id
+      WHERE im.membro_id = m.id
+      ORDER BY im.data_matricula DESC
+      LIMIT 1) AS instituto_turma,
+    (SELECT im.aprovado
+       FROM instituto_matriculas im
+      WHERE im.membro_id = m.id
+      ORDER BY im.data_matricula DESC
+      LIMIT 1) AS instituto_aprovado
 FROM celula_frequencia cf
 JOIN celulas c   ON c.id = cf.celula_id
 JOIN membros m   ON m.id = cf.membro_id
