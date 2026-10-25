@@ -1,0 +1,44 @@
+package com.igrejasara.sarabackend.controllers;
+
+import com.igrejasara.sarabackend.entities.FichaConversao;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import com.igrejasara.sarabackend.service.FichaConversaoService;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/novos-convertidos")
+@CrossOrigin(origins = "*")
+public class FIchaConversaoController {
+
+    @Autowired
+    private FichaConversaoService service;
+
+    @PostMapping
+    public ResponseEntity<FichaConversao> criarFicha(@RequestBody FichaConversao ficha){
+        FichaConversao fichaSalva = service.salvarFicha(ficha);
+        return ResponseEntity.status(HttpStatus.CREATED).body(fichaSalva);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<FichaConversao>> listarFichas(){
+        return ResponseEntity.ok(service.listarTodas());
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<FichaConversao> atualizarFicha(@PathVariable Long id, @RequestBody FichaConversao ficha) {
+        return service.atualizarFicha(id, ficha)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> excluirFicha(@PathVariable Long id) {
+        return service.excluirFicha(id)
+                ? ResponseEntity.noContent().build()
+                : ResponseEntity.notFound().build();
+    }
+}

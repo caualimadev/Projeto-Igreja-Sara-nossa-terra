@@ -1,0 +1,46 @@
+package com.igrejasara.sarabackend.controllers;
+
+import com.igrejasara.sarabackend.entities.Celula;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import com.igrejasara.sarabackend.repositories.CelulaRepository;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/celulas")
+@CrossOrigin(origins = "*")
+public class CelulaController {
+    @Autowired
+    private CelulaRepository repository;
+
+    @GetMapping
+    public ResponseEntity<List<Celula>> listarTodas() {
+        return ResponseEntity.ok(repository.findAll());
+    }
+
+    @PostMapping
+    public ResponseEntity<Celula> criarCelula(@RequestBody Celula celula) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(repository.save(celula));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Celula> atualizar(@PathVariable Long id, @RequestBody Celula dados) {
+        if (!repository.existsById(id)) {
+            return ResponseEntity.notFound().build();
+        }
+        dados.setId(id);
+        return ResponseEntity.ok(repository.save(dados));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> excluir(@PathVariable Long id) {
+        if (!repository.existsById(id)) {
+            return ResponseEntity.notFound().build();
+        }
+        repository.deleteById(id);
+        return ResponseEntity.noContent().build();
+    }
+}
